@@ -159,7 +159,8 @@
   }
 
   // ------------------------------------------------------------------ estado e filtros
-  const state = { q: '', terms: [], persons: new Set(), cats: new Set(), milestones: false }
+  // order: 'inicio' (a história, com as cenas) ou 'recentes' (do mais recente ao mais antigo, sem cenas)
+  const state = { q: '', terms: [], persons: new Set(), cats: new Set(), milestones: false, order: 'inicio' }
   let filtered = D.events
   // a história (com cenas) só some quando algo realmente filtra
   const isFiltering = () => !!(state.terms.length || state.persons.size || state.cats.size)
@@ -169,6 +170,7 @@
     ;(sp.get('pessoas') || '').split(',').filter(k => people.has(k)).forEach(k => state.persons.add(k))
     ;(sp.get('temas') || '').split(',').filter(c => D.categories[c]).forEach(c => state.cats.add(c))
     if (sp.get('q')) state.q = sp.get('q')
+    if (sp.get('ordem') === 'recentes') state.order = 'recentes'
   }
   const urlLetra = (() => { const l = new URLSearchParams(location.search).get('letra'); return ['normal', 'grande', 'maior', 'enorme'].includes(l) ? l : '' })()
   function writeUrl() {
@@ -177,6 +179,7 @@
     if (state.cats.size) sp.set('temas', [...state.cats].join(','))
     if (state.milestones) sp.set('graves', '1')
     if (state.q) sp.set('q', state.q)
+    if (state.order === 'recentes') sp.set('ordem', 'recentes')
     if (urlLetra) sp.set('letra', urlLetra)
     const qs = sp.toString()
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
@@ -573,7 +576,8 @@
       setupTimeline(); renderYears()
       return
     }
-    const story = !isFiltering()
+    const desc = state.order === 'recentes'
+    const story = !isFiltering() && !desc
     const yearTotals = new Map()
     filtered.forEach(e => yearTotals.set(e.year, (yearTotals.get(e.year) || 0) + 1))
     let html = '', block = [], blockYear = null, firstAfterBreak = true, seen = new Set(), si = 0, pendingMini = null
@@ -590,6 +594,8 @@
       }
       list = filtered.filter(e => e.year >= ANTES)
     }
+    // do mais recente ao mais antigo: sem cenas (elas contam a história na ordem)
+    if (desc) { list = [...filtered].reverse(); si = SCENES.length }
 
     const flush = () => {
       if (!block.length) return
@@ -826,7 +832,7 @@
   function renderYears() {
     const counts = new Map()
     filtered.forEach(e => counts.set(e.year, (counts.get(e.year) || 0) + 1))
-    const all = [...new Set(BASE.map(e => e.year))].sort((a, b) => a - b)
+    const all = [...new Set(BASE.map(e => e.year))].sort((a, b) => state.order === 'recentes' ? b - a : a - b)
     $('#years').innerHTML = all.map(y => `<button type="button" data-year="${y}" ${counts.get(y) ? '' : 'disabled'} aria-label="${y}: ${counts.get(y) || 0} episódios">${y}</button>`).join('')
   }
   function renderFilterControls() {
@@ -849,6 +855,8 @@
     const qi = $('#q')
     if (qi.value.trim() !== state.q) qi.value = state.q
     $('#resultCount').innerHTML = `<b>${filtered.length}</b> de ${BASE.length} episódios`
+    $('#orderBtn').setAttribute('aria-pressed', state.order === 'recentes')
+    $('#orderLabel').textContent = state.order === 'recentes' ? 'Do mais recente' : 'Mais recentes primeiro'
   }
   function renderActiveFilters() {
     const parts = []
@@ -882,6 +890,7 @@
         applyFilters({ scroll: true })
       }, 180)
     })
+    $('#orderBtn').addEventListener('click', () => { state.order = state.order === 'recentes' ? 'inicio' : 'recentes'; applyFilters({ scroll: true }) })
     $('#peopleBtn').addEventListener('click', () => togglePop('peoplePop'))
     $('#themesBtn').addEventListener('click', () => togglePop('themesPop'))
     $('#personChips').addEventListener('click', e => {
@@ -954,6 +963,7 @@
       if (e.target.closest('a.ep-link')) e.preventDefault()
       const list = timelineEl.contains(o) && o.classList.contains('ep') ? filtered
         : o.closest('#resumoTrack') ? resumoCards().map(c => evById.get(c.event))
+        : o.closest('#agList') ? (STORY.agora.linhas || []).filter(l => evById.has(l.event)).map(l => evById.get(l.event))
         : o.closest('#faixa') ? D.events.filter(e => isStar(e) && isGrave(e)) : D.events
       openEvent(o.dataset.open, list)
     }
@@ -1062,6 +1072,26 @@
     olho: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     filme: '<rect x="3" y="9.5" width="18" height="11" rx="1.6"/><path d="M3.2 9.5 4.8 4.4 20.5 4l.3 5.5M8.5 4.3 7 9.5M13.5 4.2 12 9.5M18.4 4.1 17 9.5"/>',
     grafico: '<path d="M3.5 20h17"/><path d="M5 16l4.5-4.5 3.5 3 6.5-7"/><path d="M15.5 7.5h4v4"/>',
+  }
+  function renderAgora() {
+    const a = STORY.agora, sec = $('#agora')
+    if (!a || !sec || !evById.has(a.event)) return
+    const linhas = (a.linhas || []).filter(l => evById.has(l.event))
+    $('#agTema').textContent = a.tema
+    $('#agData').textContent = `atualizado em ${a.atualizado || updated.short}`
+    $('#agTitle').innerHTML = `<span class="ag-big">${esc(a.titulo[0])}</span> ${esc(a.titulo[1] || '')}`
+    $('#agTxt').textContent = a.texto
+    $('#agSt').innerHTML = `<b>Situação:</b> ${esc(a.status)}`
+    $('#agList').innerHTML = linhas.map(l => `<li><button type="button" data-open="${esc(l.event)}"><time>${esc(l.data)}</time><span>${esc(l.texto)}</span><i aria-hidden="true">→</i></button></li>`).join('')
+    $('#agShare').innerHTML = `${SHARE_SVG}<span>Compartilhar</span>`
+    sec.hidden = false
+    $('#agGo').onclick = () => openEvent(a.event, linhas.map(l => evById.get(l.event)))
+    $('#agShare').onclick = () => openShare(casoShare(evById.get(a.event)))
+    $('#agAll').onclick = () => {
+      state.q = ''; state.cats.clear(); state.persons = new Set(a.pessoa && vc(a.pessoa) ? [a.pessoa] : []); state.order = 'recentes'
+      applyFilters()
+      goTo($('#timeline'))
+    }
   }
   const resumoCards = () => (STORY.resumo || []).filter(c => evById.has(c.event))
   function renderResumo() {
@@ -1378,7 +1408,7 @@
       const target = document.getElementById(a.getAttribute('href').slice(1))
       if (target) { e.preventDefault(); window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH() - 8, behavior: reduce ? 'auto' : 'smooth' }) }
     })
-    const ids = ['resumo', 'graves', 'historia', 'pessoas', 'conexoes', 'videos', 'metodo']
+    const ids = ['agora', 'resumo', 'graves', 'historia', 'pessoas', 'conexoes', 'videos', 'metodo']
     const obs = new IntersectionObserver(en => en.forEach(x => {
       if (x.isIntersecting) $$('.nav-links a').forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + x.target.id))
     }), { rootMargin: '-45% 0px -50% 0px' })
@@ -1426,6 +1456,7 @@
   // ------------------------------------------------------------------ início
   readUrl()
   renderHero()
+  renderAgora()
   renderResumo()
   constellation = initConstellation()
   renderFilterControls()

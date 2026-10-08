@@ -38,6 +38,7 @@
       <span>Conheça Bolsonaro</span>
     </a>
     <nav class="nav-links" id="navLinks" aria-label="Seções">
+      <a href="#agora">Agora</a>
       <a href="#resumo">Resumo</a>
       <a href="#historia">História</a>
       <a href="#pessoas">Pessoas</a>
@@ -60,7 +61,7 @@
         <h1 class="display hero-t" id="heroTitle"><span class="line"><span>Conheça</span></span><span class="line"><span>Flávio Bolsonaro,</span></span><span class="line line-sub"><span>o filho investigado por corrupção.</span></span></h1>
         <p class="lede" id="heroLede">A história de Flávio e seus amigos no Rio de Janeiro e no Brasil.</p>
         <div class="hero-actions">
-          <a class="btn-primary" href="#resumo">Ver o resumo <span aria-hidden="true">↓</span></a>
+          <a class="btn-primary" href="#agora">Ver os casos <span aria-hidden="true">↓</span></a>
           <button class="btn-share ghost hero-share" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Compartilhar</span></button>
         </div>
       </div>
@@ -70,13 +71,34 @@
       </figure>
     </section>
 
+    <!-- AGORA: o caso mais recente em destaque -->
+    <section class="agora" id="agora" aria-labelledby="agTitle" hidden>
+      <div class="ag-in">
+        <div class="ag-main">
+          <p class="ag-kick"><span class="ag-dot" aria-hidden="true"></span><b>Agora</b><span id="agTema"></span><i id="agData"></i></p>
+          <h2 class="ag-title" id="agTitle"></h2>
+          <p class="ag-txt" id="agTxt"></p>
+          <p class="ag-st" id="agSt"></p>
+          <div class="ag-act">
+            <button class="btn-primary ag-go" type="button" id="agGo">Ver a notícia</button>
+            <button class="ag-btn" type="button" id="agAll">Tudo sobre o caso, do mais recente</button>
+            <button class="ag-btn ag-share" type="button" id="agShare" aria-label="Compartilhar o caso"></button>
+          </div>
+        </div>
+        <div class="ag-side">
+          <p class="ag-side-h">Os últimos capítulos</p>
+          <ol class="ag-list" id="agList"></ol>
+        </div>
+      </div>
+    </section>
+
     <!-- FLÁVIO EM 1 MINUTO: a faixa dos casos graves e os cartões ilustrados -->
     <section class="resumo" id="resumo" aria-labelledby="rsTitle">
       <div class="rs-head">
         <div>
           <p class="label">O resumo</p>
           <h2 class="rs-title" id="rsTitle">Flávio em 1 minuto</h2>
-          <p class="rs-sub">O que pesa contra ele, em <span id="rsN">14</span> cartões. Toque em um para ver a notícia completa.</p>
+          <p class="rs-sub">O que pesa contra ele, em <span id="rsN">14</span> cartões, do mais recente ao mais antigo. Toque em um para ver a notícia completa.</p>
         </div>
       </div>
       <div class="faixa-box">
@@ -112,6 +134,7 @@
           <div class="tb-group">
             <button class="tb-btn" id="peopleBtn" type="button" aria-expanded="false" aria-controls="peoplePop">Pessoas <span class="tb-n" id="peopleN"></span></button>
             <button class="tb-btn" id="themesBtn" type="button" aria-expanded="false" aria-controls="themesPop">Temas <span class="tb-n" id="themesN"></span></button>
+            <button class="tb-btn tb-order" id="orderBtn" type="button" aria-pressed="false"><span aria-hidden="true">⇅</span> <span id="orderLabel">Mais recentes primeiro</span></button>
           </div>
           <p class="tb-count" id="resultCount" aria-live="polite"></p>
         </div>
