@@ -1064,7 +1064,7 @@
     const y0 = Math.min(...graves.map(e => e.year)), y1 = Math.max(+D.meta.updated.slice(0, 4), ...graves.map(e => e.year))
     const byYear = new Map()
     graves.forEach(e => { if (!byYear.has(e.year)) byYear.set(e.year, []); byYear.get(e.year).push(e) })
-    $('#faixaN').innerHTML = `<em>${graves.length} casos graves</em> em ${y1 - y0} anos`
+    $('#faixaN').innerHTML = `<em>${graves.length} episódios graves</em> em ${y1 - y0} anos`
     const faixa = $('#faixa')
     faixa.style.setProperty('--anos', y1 - y0 + 1)
     let html = ''
