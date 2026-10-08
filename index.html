@@ -4,10 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Conheça Bolsonaro — Flávio, episódio por episódio</title>
-  <meta name="description" content="A história de Flávio Bolsonaro, do pai, dos irmãos e dos aliados contada em capítulos: rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master e o golpe de Estado. Com fontes.">
-  <meta property="og:title" content="Conheça Bolsonaro — Flávio, episódio por episódio">
-  <meta property="og:description" content="386 episódios, de 1986 a 2026, contados em capítulos e com as fontes.">
+  <meta name="description" content="Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master: os casos de Flávio Bolsonaro em ordem, episódio por episódio, com as fontes.">
+  <link rel="canonical" href="https://conhecabolsonaro.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Conheça Bolsonaro">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://conhecabolsonaro.github.io/">
+  <meta property="og:title" content="Flávio Bolsonaro, episódio por episódio">
+  <meta property="og:description" content="Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master. Antes de votar, conheça os casos, com as fontes.">
+  <meta property="og:image" content="https://conhecabolsonaro.github.io/og/site.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Flávio Bolsonaro, episódio por episódio: rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Flávio Bolsonaro, episódio por episódio">
+  <meta name="twitter:description" content="Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master. Antes de votar, conheça os casos, com as fontes.">
+  <meta name="twitter:image" content="https://conhecabolsonaro.github.io/og/site.png">
   <meta name="theme-color" content="#ffffff">
+  <script>(function(){var l=null;try{l=new URLSearchParams(location.search).get('letra')}catch(e){}try{if(l==='grande'||l==='normal')localStorage.setItem('cb-letra',l);else l=localStorage.getItem('cb-letra')}catch(e){}if(l==='grande')document.documentElement.classList.add('grande')})()</script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 58 54H6z' fill='none' stroke='%238052ff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +45,10 @@
       <a href="#videos">Vídeos</a>
       <a href="#metodo">Método</a>
     </nav>
-    <button class="mode-chip" id="modeChip" type="button" hidden><span id="modeLabel"></span><i>trocar</i></button>
-    <a class="btn-primary nav-cta" href="#historia" data-start>Começar</a>
+    <div class="nav-tools">
+      <button class="aa-btn" type="button" data-letra aria-pressed="false"><b aria-hidden="true">A+</b><span data-letra-label>Letra grande</span></button>
+      <button class="nav-share" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Compartilhar</span></button>
+    </div>
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Abrir menu"><i></i><i></i></button>
   </header>
 
@@ -44,6 +61,7 @@
         <p class="lede" id="heroLede">Os casos, em ordem e com as fontes.</p>
         <div class="hero-actions">
           <a class="btn-primary" href="#historia" data-start>Começar <span aria-hidden="true">↓</span></a>
+          <button class="btn-share ghost hero-share" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Compartilhar</span></button>
         </div>
       </div>
       <figure class="hero-visual">
@@ -72,7 +90,6 @@
           <div class="tb-group">
             <button class="tb-btn" id="peopleBtn" type="button" aria-expanded="false" aria-controls="peoplePop">Pessoas <span class="tb-n" id="peopleN"></span></button>
             <button class="tb-btn" id="themesBtn" type="button" aria-expanded="false" aria-controls="themesPop">Temas <span class="tb-n" id="themesN"></span></button>
-            <button class="tb-btn tb-toggle" id="onlyMilestones" type="button" aria-pressed="false">Só os graves</button>
           </div>
           <p class="tb-count" id="resultCount" aria-live="polite"></p>
         </div>
@@ -92,6 +109,24 @@
 
       <div class="timeline" id="timeline">
         <p class="loading">Carregando a história…</p>
+      </div>
+    </section>
+
+    <!-- ESPALHE: compartilhar o site -->
+    <section class="espalhe" id="espalhe" aria-labelledby="espTitle">
+      <div class="espalhe-in">
+        <div>
+          <p class="label">Compartilhe</p>
+          <h2 class="espalhe-t" id="espTitle">Mande para quem ainda vai decidir o voto.</h2>
+          <p class="espalhe-p">Uma mensagem no grupo da família vale mais do que qualquer anúncio. Cada caso tem o próprio link, com as fontes.</p>
+        </div>
+        <div class="espalhe-act">
+          <a class="btn-wa" href="https://wa.me/?text=https%3A%2F%2Fconhecabolsonaro.github.io%2F" target="_blank" rel="noopener" data-wa-site><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span>Enviar o site no WhatsApp</span></a>
+          <div class="espalhe-row">
+            <button class="btn-sh" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Outras formas</span></button>
+          </div>
+          <p class="espalhe-velhos">Para pais e avós: <button type="button" data-sh-site="grande">mande a versão com letra grande</button>.</p>
+        </div>
       </div>
     </section>
 
@@ -161,7 +196,14 @@
           <dt>Recortes</dt>
           <dd>Na entrada, o site pergunta se você se considera bolsonarista. Quem responde “sim” vê os casos de Flávio e
             dos irmãos; quem responde “não” vê também os do pai e dos aliados. Nos dois, os episódios de Flávio vêm em destaque.
-            A resposta fica só neste aparelho e pode ser trocada no topo da página.</dd>
+            A resposta fica só neste aparelho e pode ser refeita no fim da página.</dd>
+          <dt>Letra grande</dt>
+          <dd>Quem responde que tem 60 anos ou mais, ou toca no botão <b>A+</b>, vê o site com letra maior, mais contraste e sem animações.
+            A história vira leitura corrida, de cima para baixo.</dd>
+          <dt>Compartilhar</dt>
+          <dd>Cada caso, assunto e capítulo tem o próprio endereço, com título, resumo e imagem de prévia. O botão
+            <b>Compartilhar</b> manda pelo WhatsApp e outras redes, copia o link ou a mensagem pronta, gera uma imagem para
+            status e stories e mostra um QR code.</dd>
           <dt>Termos</dt>
           <dd><b>Investigação</b>: apuração em curso. <b>Indiciamento</b>: a polícia vê indícios de crime. <b>Denúncia</b>:
             o Ministério Público acusa formalmente. <b>Réu</b>: a Justiça aceita a denúncia. <b>Condenação</b>: sentença,
@@ -185,20 +227,36 @@
       <p>Compilação de informações públicas, com fontes. Dados até <span id="footerDate"></span>.</p>
       <p class="muted">Fotos: Wikimedia Commons, Agência Brasil e Agência Senado, nas licenças indicadas. Vídeos incorporados do YouTube, de seus canais de origem.</p>
     </div>
+    <div class="footer-acts">
+      <button type="button" data-sh-site>Compartilhar o site</button>
+      <button type="button" data-letra aria-pressed="false"><span data-letra-label>Letra grande</span></button>
+      <button type="button" data-refazer>Refazer as perguntas do início</button>
+    </div>
   </footer>
 
   <button class="progress-pill" id="progressPill" type="button" aria-label="Voltar à busca e aos filtros"><b id="ppYear">—</b><span id="ppCount"></span><i aria-hidden="true">Filtros ↑</i></button>
 
   <dialog class="intro" id="intro" aria-labelledby="introQ">
     <div class="intro-inner">
-      <p class="label">Antes de começar</p>
-      <h2 class="intro-q" id="introQ">Você se considera bolsonarista?</h2>
-      <div class="intro-actions">
-        <button class="intro-btn" type="button" data-mode="bolsonarista">Sim</button>
-        <button class="intro-btn" type="button" data-mode="geral">Não</button>
+      <div class="intro-step" data-step="idade">
+        <p class="label">Antes de começar <span class="intro-n"></span></p>
+        <h2 class="intro-q" id="introQ">Você tem 60 anos ou mais?</h2>
+        <div class="intro-actions">
+          <button class="intro-btn" type="button" data-idade="sim">Sim</button>
+          <button class="intro-btn" type="button" data-idade="nao">Não</button>
+        </div>
+        <p class="intro-note">Com “sim”, o site fica com letra maior e leitura mais simples. Dá para mudar quando quiser no botão A+, no alto da página.</p>
       </div>
-      <button class="link-ghost intro-skip" type="button" data-mode="geral">Prefiro não responder</button>
-      <p class="intro-note">A resposta só escolhe o recorte dos casos. Fica neste aparelho e não é enviada a ninguém.</p>
+      <div class="intro-step" data-step="recorte" hidden>
+        <p class="label">Antes de começar <span class="intro-n"></span></p>
+        <h2 class="intro-q" id="introQ2">Você se considera bolsonarista?</h2>
+        <div class="intro-actions">
+          <button class="intro-btn" type="button" data-mode="bolsonarista">Sim</button>
+          <button class="intro-btn" type="button" data-mode="geral">Não</button>
+        </div>
+        <button class="link-ghost intro-skip" type="button" data-mode="geral">Prefiro não responder</button>
+        <p class="intro-note">As respostas ficam neste aparelho e não são enviadas a ninguém.</p>
+      </div>
     </div>
   </dialog>
 
@@ -209,6 +267,8 @@
 
   <script src="data/timeline.js"></script>
   <script src="data/story.js"></script>
+  <script src="data/links.js"></script>
+  <script src="assets/js/compartilhar.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </body>

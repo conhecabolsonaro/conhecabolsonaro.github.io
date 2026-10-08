@@ -7,5 +7,12 @@
 /data/*
 !/data/timeline.js
 !/data/story.js
+!/data/links.js
+!/caso/
+!/assunto/
+!/capitulo/
+!/og/
+!/sitemap.xml
+!/robots.txt
 !/.nojekyll
 !/.gitignore

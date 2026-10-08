@@ -131,7 +131,7 @@ window.STORY = {
       event: 'banco-master-intercept-flavio-dark-horse',
       also: ['banco-master-stf-inquerito-dark-horse'],
       hook: 'Maio de 2026. Áudios revelados pelo Intercept mostram Flávio cobrando de Daniel Vorcaro, do Banco Master, dinheiro para um filme sobre o pai.',
-      viz: { type: 'counter', value: 24000000, format: 'usd', caption: 'negociados para o filme, segundo os áudios. Flávio confirmou o pedido e diz que era patrocínio privado. Em julho, o STF abriu inquérito e ele passou a ser investigado, sem indiciamento até agora.' },
+      viz: { type: 'counter', value: 134000000, format: 'brl', caption: 'negociados para o filme, segundo os áudios (US$ 24 milhões, na conversão da imprensa). Flávio confirmou o pedido e diz que era patrocínio privado. Em julho, o STF abriu inquérito e ele passou a ser investigado, sem indiciamento até agora.' },
     },
     {
       id: 'brb', n: 'Capítulo 16', title: 'A volta da mansão',
@@ -182,12 +182,12 @@ window.STORY = {
     },
     {
       id: 'master', tema: 'Banco Master e BRB',
-      titulo: 'US$ 24 milhões negociados com um banqueiro hoje preso.',
+      titulo: 'R$ 134 milhões negociados com um banqueiro hoje preso.',
       rostos: ['vorcaro', 'paulo-henrique-costa'],
       filtro: { temas: ['financas'], pessoas: ['flavio'] },
       linhas: [
         { ano: '2021', texto: 'Comprou mansão de R$ 5,97 mi com R$ 3,1 mi do banco público BRB.', event: 'mansao-brb-compra-mansao-lago-sul' },
-        { ano: '2026', texto: 'Áudios: negociou US$ 24 milhões com Daniel Vorcaro para um filme sobre o pai.', event: 'banco-master-intercept-flavio-dark-horse' },
+        { ano: '2026', texto: 'Áudios: negociou R$ 134 milhões com Daniel Vorcaro para um filme sobre o pai.', event: 'banco-master-intercept-flavio-dark-horse' },
         { ano: '2026', texto: 'Passou a ser investigado no STF por corrupção e lavagem.', event: 'banco-master-stf-inquerito-dark-horse' },
         { ano: '2026', texto: 'A PF apura o empréstimo; o ex-presidente do BRB está preso.', event: 'mansao-brb-pf-apura-financiamento' },
       ],

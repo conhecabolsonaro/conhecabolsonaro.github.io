@@ -18,7 +18,9 @@
 
   const mqMobile = matchMedia('(max-width: 760px)')
   const isMobile = () => mqMobile.matches
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const Letra = window.Letra || { on: false, chosen: () => 'normal', set() {} }
+  let reduce = reduceMQ || Letra.on
 
   // ------------------------------------------------------------------ dicionários
   // [cor viva (triângulos, pontos), cor de texto sobre fundo claro]
@@ -176,7 +178,6 @@
     const sp = new URLSearchParams(location.search)
     ;(sp.get('pessoas') || '').split(',').filter(k => people.has(k)).forEach(k => state.persons.add(k))
     ;(sp.get('temas') || '').split(',').filter(c => D.categories[c]).forEach(c => state.cats.add(c))
-    if (sp.get('graves') === '1') state.milestones = true
     if (sp.get('q')) state.q = sp.get('q')
   }
   function writeUrl() {
@@ -368,6 +369,62 @@
   }
   let constellation = null
 
+  // ------------------------------------------------------------------ compartilhar
+  const SH = window.Compartilhar
+  const LINKS = window.LINKS || { site: 'https://conhecabolsonaro.github.io/', caso: {}, assunto: [], capitulo: [] }
+  const SHARE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>'
+  const outletsOf = e => [...new Set(e.sources.map(s => String(s.outlet).replace(/\s*\(.*\)\s*/g, '').trim()))]
+  const casoUrl = e => LINKS.caso[e.id] ? `${LINKS.site}caso/${LINKS.caso[e.id]}/` : `${LINKS.site}#ficha/${e.id}`
+  function casoShare(e) {
+    const g = gravOf(e)
+    const kicker = g.g === 'grave' && g.r ? g.r : catLabel(e.category)
+    const meta = `${fmtDate(e, 'long')} · ${kicker}`
+    const a = e.amounts[0]
+    return {
+      url: casoUrl(e), titulo: e.title, meta, texto: e.summary, fontes: outletsOf(e).slice(0, 3).join(', '), arquivo: LINKS.caso[e.id] || e.id,
+      imagem: { kicker: meta, ano: e.year, cor: g.g === 'grave' ? '#c2341a' : catInk(e.category), grande: a ? moneyShort('R$ ', a.value_brl) : '', rotulo: a ? a.label.replace(/\s*\(.*?\)\s*/g, ' ').trim() : '' },
+    }
+  }
+  function siteShare(grande) {
+    return {
+      url: LINKS.site + (grande ? '?letra=grande' : ''), rotulo: grande ? 'Compartilhar a versão com letra grande' : 'Compartilhar o site',
+      titulo: 'Flávio Bolsonaro, episódio por episódio', meta: grande ? 'Versão com letra grande' : '',
+      texto: `Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master: ${D.events.length} episódios em ordem, com as fontes.`,
+      convite: 'Antes de votar, conheça:', arquivo: 'conheca-bolsonaro',
+      imagem: { kicker: 'Antes de votar, conheça', cor: '#5b34d6', grande: `${D.events.length} episódios`, rotulo: `${D.meta.counts.sources.toLocaleString('pt-BR')} links de fontes · dados até ${updated.short}`, chamada: 'Leia a história completa, com as fontes:' },
+    }
+  }
+  function assuntoShare(a) {
+    const linhas = a.linhas.filter(l => evById.has(l.event))
+    return {
+      url: LINKS.assunto.includes(a.id) ? `${LINKS.site}assunto/${a.id}/` : `${LINKS.site}#assunto-${a.id}`,
+      titulo: `${a.tema}: ${a.titulo}`, meta: 'Flávio Bolsonaro em 4 assuntos', texto: linhas.map(l => `${l.ano}: ${l.texto}`).join(' '), arquivo: 'assunto-' + a.id,
+      imagem: { kicker: a.tema, cor: '#c2341a' },
+    }
+  }
+  function capShare(ch) {
+    const e = evById.get(ch.event)
+    const big = ch.viz ? finalNum(ch.viz) : ''
+    const cap = ch.viz && ch.viz.caption ? ch.viz.caption : ''
+    const date = ch.id === (STORY.epilogue || {}).id ? `dados até ${updated.short}` : (e ? fmtDate(e, 'long') : '')
+    return {
+      url: LINKS.capitulo.includes(ch.id) ? `${LINKS.site}capitulo/${ch.id}/` : `${LINKS.site}#cap-${ch.id}`,
+      titulo: big ? `${ch.title}: ${big}` : ch.title, meta: date, texto: ch.hook + (cap ? ' ' + (big ? big + ' ' : '') + cap : ''), arquivo: 'capitulo-' + ch.id,
+      imagem: { kicker: date, ano: e && ch.id !== (STORY.epilogue || {}).id ? e.year : '', cor: '#5b34d6', grande: big, rotulo: cap.length > 90 ? cap.slice(0, 88).replace(/\s+\S*$/, '') + '…' : cap },
+    }
+  }
+  function openShare(d) { if (SH) SH.open(d) }
+  // botões de compartilhar fora da ficha (cartões, assuntos, cenas, menu, capa, rodapé)
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-sh-ev], [data-sh-site], [data-sh-assunto], [data-sh-cap]')
+    if (!b || b.closest('#sheet')) return
+    e.preventDefault(); e.stopPropagation()
+    if (b.dataset.shEv) { const ev = evById.get(b.dataset.shEv); if (ev) openShare(casoShare(ev)) }
+    else if ('shSite' in b.dataset) openShare(siteShare(b.dataset.shSite === 'grande'))
+    else if (b.dataset.shAssunto) { const a = (STORY.assuntos || []).find(x => x.id === b.dataset.shAssunto); if (a) openShare(assuntoShare(a)) }
+    else if (b.dataset.shCap) { const sc = SCENES.find(x => x.ch.id === b.dataset.shCap); const ch = sc ? sc.ch : [...STORY.chapters, STORY.epilogue].find(x => x && x.id === b.dataset.shCap); if (ch) openShare(capShare(ch)) }
+  }, true)
+
   // ------------------------------------------------------------------ a história (linha do tempo)
   function erasFor(y) { return (D.eras || []).filter(r => y >= r.from && y <= r.to).map(r => r.label) }
   const sceneDate = ch => { const e = evById.get(ch.event); return e ? fmtDate(e) : '' }
@@ -393,9 +450,10 @@
     // no recorte bolsonarista a cena não abre fichas que ficaram fora dele
     const inBase = new Set(BASE.map(e => e.id))
     const ids = [ch.event, ...(ch.also || [])].filter(id => id && evById.has(id) && (mode !== 'bolsonarista' || inBase.has(id)))
-    if (!ids.length) return ''
+    const share = `<button class="btn-share ghost" type="button" data-sh-cap="${esc(ch.id)}">${SHARE_SVG}<span>Compartilhar</span></button>`
+    if (!ids.length) return `<div class="scene-go">${share}</div>`
     const [main, ...rest] = ids
-    return `<div class="scene-go"><button class="link-ghost" type="button" data-open="${esc(main)}">Abrir a ficha →</button>${rest.map(id => `<button class="link-ghost sm" type="button" data-open="${esc(id)}">Ver também: ${esc(fmtDate(evById.get(id)))}</button>`).join('')}</div>`
+    return `<div class="scene-go"><button class="link-ghost" type="button" data-open="${esc(main)}">Abrir a ficha →</button>${rest.map(id => `<button class="link-ghost sm" type="button" data-open="${esc(id)}">Ver também: ${esc(fmtDate(evById.get(id)))}</button>`).join('')}${share}</div>`
   }
   function vizHTML(ch) {
     const v = ch.viz || { type: 'words' }
@@ -468,7 +526,7 @@
         <h4 class="ep-title"><a class="ep-link" href="#ficha/${esc(e.id)}">${hl(e.title)}</a></h4>
         <p class="ep-sum">${hl(e.summary)}</p>
         ${amts ? `<div class="ep-amounts">${amts}</div>` : ''}
-        <div class="ep-foot">${shown.length ? `<span class="avs" aria-hidden="true">${shown.map(k => avatar(k)).join('')}</span><span>${esc(names)}</span>` : ''}<span>${e.sources.length} fonte${e.sources.length === 1 ? '' : 's'}${e.videos.length ? ` · ${e.videos.length} vídeo${e.videos.length === 1 ? '' : 's'}` : ''}</span><span class="ep-go" aria-hidden="true">Ficha <span>→</span></span></div>
+        <div class="ep-foot">${shown.length ? `<span class="avs" aria-hidden="true">${shown.map(k => avatar(k)).join('')}</span><span>${esc(names)}</span>` : ''}<span>${e.sources.length} fonte${e.sources.length === 1 ? '' : 's'}${e.videos.length ? ` · ${e.videos.length} vídeo${e.videos.length === 1 ? '' : 's'}` : ''}</span><button class="ep-share" type="button" data-sh-ev="${esc(e.id)}" aria-label="Compartilhar: ${esc(e.title)}">${SHARE_SVG}</button><span class="ep-go" aria-hidden="true">Ficha <span>→</span></span></div>
       </div>
       ${media}
     </article>`
@@ -778,7 +836,6 @@
   function syncControls() {
     $$('[data-person]', $('#personChips')).forEach(b => b.setAttribute('aria-pressed', state.persons.has(b.dataset.person)))
     $$('[data-cat]', $('#catChips')).forEach(b => b.setAttribute('aria-pressed', state.cats.has(b.dataset.cat)))
-    $('#onlyMilestones').setAttribute('aria-pressed', state.milestones)
     $('#peopleN').textContent = state.persons.size || ''
     $('#themesN').textContent = state.cats.size || ''
     // só reescreve a caixa quando a mudança veio de fora dela (não apaga o espaço enquanto se digita)
@@ -818,7 +875,6 @@
         applyFilters({ scroll: true })
       }, 180)
     })
-    $('#onlyMilestones').addEventListener('click', () => { state.milestones = !state.milestones; applyFilters({ scroll: true }) })
     $('#peopleBtn').addEventListener('click', () => togglePop('peoplePop'))
     $('#themesBtn').addEventListener('click', () => togglePop('themesPop'))
     $('#personChips').addEventListener('click', e => {
@@ -931,7 +987,7 @@
         <span class="crumb">Ficha ${e._n} de ${D.events.length} · ${esc(catLabel(e.category))}</span>
         <button class="icon-btn" type="button" data-nav="-1" aria-label="Episódio anterior" ${sheetIdx <= 0 ? 'disabled' : ''}>←</button>
         <button class="icon-btn" type="button" data-nav="1" aria-label="Próximo episódio" ${sheetIdx >= sheetList.length - 1 ? 'disabled' : ''}>→</button>
-        <button class="icon-btn" type="button" data-share>Copiar link</button>
+        <button class="icon-btn sh-top" type="button" data-sh-ev="${esc(e.id)}">${SHARE_SVG}<span>Compartilhar</span></button>
         <button class="icon-btn" type="button" data-close aria-label="Fechar">✕</button>
       </div>
       <article class="sheet-body">
@@ -940,6 +996,7 @@
         </div>
         <h2 class="s-title" id="sheetTitle" tabindex="-1">${esc(e.title)}</h2>
         <p class="s-lead">${esc(e.summary)}</p>
+        ${SH ? `<div class="s-share"><a class="btn-wa" href="${esc(SH.links(casoShare(e)).whatsapp)}" target="_blank" rel="noopener">${SH.icon('whatsapp')}<span>Enviar no WhatsApp</span></a><button class="btn-sh" type="button" data-sh-ev="${esc(e.id)}">${SHARE_SVG}<span>Outras formas</span></button></div>` : ''}
         ${media.length ? `<div class="s-media">${media.join('')}</div>` : ''}
         ${e.details ? `<p class="s-details">${esc(e.details)}</p>` : ''}
         <dl class="s-facts">${facts.join('')}</dl>
@@ -962,10 +1019,8 @@
     const nav = e.target.closest('[data-nav]')
     if (nav && !nav.disabled) { const n = sheetList[sheetIdx + Number(nav.dataset.nav)]; if (n) openEvent(n.id, sheetList) }
     if (e.target.closest('[data-close]')) sheet.close()
-    if (e.target.closest('[data-share]')) {
-      const url = location.href
-      ;(navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast('Link da ficha copiado'), () => toast(url))
-    }
+    const shb = e.target.closest('[data-sh-ev]')
+    if (shb) { const ev = evById.get(shb.dataset.shEv); if (ev) openShare(casoShare(ev)) }
     const go = e.target.closest('[data-goto]'); if (go) openEvent(go.dataset.goto, D.events)
     const sp = e.target.closest('[data-sheet-person]'); if (sp) { sheet.close(); filterByPerson(sp.dataset.sheetPerson) }
   })
@@ -992,6 +1047,7 @@
         <ol class="as-linhas">${a.linhas.filter(l => evById.has(l.event)).map(l => `<li><button type="button" data-open="${esc(l.event)}"><b>${esc(l.ano)}</b><span>${esc(l.texto)}</span><i aria-hidden="true">→</i></button></li>`).join('')}</ol>
         <div class="as-pe">
           ${rostos.length ? `<span class="avs" aria-hidden="true">${rostos.map(k => avatar(k)).join('')}</span><span class="as-nomes">${esc(rostos.map(displayName).join(', '))}</span>` : ''}
+          <button class="btn-share" type="button" data-sh-assunto="${esc(a.id)}">${SHARE_SVG}<span>Compartilhar</span></button>
           <button class="link-ghost" type="button" data-assunto="${esc(a.id)}">Ver tudo →</button>
         </div>
       </article>`
@@ -1214,10 +1270,6 @@
   }
 
   // ------------------------------------------------------------------ recorte: pergunta e troca
-  function updateModeChip() {
-    $('#modeLabel').textContent = MODES[mode].label
-    $('#modeChip').hidden = false
-  }
   function setMode(m) {
     if (!MODES[m]) return
     mode = m
@@ -1231,18 +1283,49 @@
     videoLimit = 9; renderVideos()
     if (graphReady) { graphReady = false; initGraph() }
     applyFilters()
-    updateModeChip()
   }
   const intro = $('#intro')
-  function askMode() { if (!intro.open) intro.showModal() }
+  let introSteps = []
+  function showStep(i) {
+    const name = introSteps[i]
+    $$('.intro-step', intro).forEach(st => { st.hidden = st.dataset.step !== name })
+    $$('.intro-n', intro).forEach(n => { n.textContent = introSteps.length > 1 ? `${i + 1} de ${introSteps.length}` : '' })
+    const q = $(`.intro-step[data-step="${name}"] .intro-q`, intro)
+    intro.setAttribute('aria-labelledby', q.id)
+    // o foco vai para a pergunta (e não para o "Sim", que pareceria já escolhido)
+    q.setAttribute('tabindex', '-1'); q.focus({ preventScroll: true })
+  }
+  function askIntro(steps) {
+    introSteps = steps.filter(Boolean)
+    if (!introSteps.length) return
+    if (!intro.open) intro.showModal()
+    showStep(0)
+  }
+  const askMode = () => askIntro(['idade', 'recorte'])
   intro.addEventListener('click', e => {
+    const ib = e.target.closest('[data-idade]')
+    if (ib) {
+      Letra.set(ib.dataset.idade === 'sim')
+      const i = introSteps.indexOf('idade')
+      if (i + 1 < introSteps.length) showStep(i + 1)
+      else intro.close()
+      return
+    }
     const b = e.target.closest('[data-mode]'); if (!b) return
     intro.close(); setMode(b.dataset.mode); window.scrollTo({ top: 0, behavior: 'auto' })
   })
   // Esc sem responder vale como "prefiro não responder"
-  intro.addEventListener('cancel', () => { if (!localStorageMode()) setMode('geral') })
+  intro.addEventListener('cancel', () => {
+    if (!Letra.chosen()) Letra.set(false)
+    if (!localStorageMode()) setMode('geral')
+  })
   const localStorageMode = () => { try { return localStorage.getItem(MODE_KEY) } catch (err) { return 'geral' } }
-  $('#modeChip').addEventListener('click', askMode)
+  $$('[data-refazer]').forEach(b => b.addEventListener('click', askMode))
+  // letra grande ligada ou desligada: a história é remontada sem (ou com) a trava de rolagem
+  document.addEventListener('letra', () => {
+    reduce = reduceMQ || Letra.on
+    applyFilters()
+  })
 
   // ------------------------------------------------------------------ início
   readUrl()
@@ -1257,7 +1340,14 @@
   renderMethod()
   bindNav()
   applyFilters()
-  if (modeChosen) updateModeChip(); else askMode()
+  // quem chega por um link de ficha lê a ficha primeiro; as perguntas vêm quando ela fecha
+  const pendingSteps = [Letra.chosen() ? null : 'idade', modeChosen ? null : 'recorte'].filter(Boolean)
+  if (pendingSteps.length) {
+    if (location.hash.startsWith('#ficha/')) sheet.addEventListener('close', () => askIntro(pendingSteps), { once: true })
+    else askIntro(pendingSteps)
+  }
+  // botões de WhatsApp do site (seção "Espalhe")
+  if (SH) $$('[data-wa-site]').forEach(a => { a.href = SH.links(siteShare(a.dataset.waSite === 'grande')).whatsapp })
 
   function openFromHash() {
     if (!location.hash.startsWith('#ficha/')) return false
