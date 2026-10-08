@@ -160,6 +160,31 @@ window.STORY = {
       { data: 'nov 2025', texto: 'Vorcaro é preso e o Banco Central liquida o Master', event: 'banco-master-vorcaro-preso-liquidacao' },
       { data: 'dez 2024', texto: 'Mensagens indicam que Vorcaro pediu sigilo sobre jantar com Jair e Flávio', event: 'banco-master-mensagens-jantar-vorcaro-jair-flavio' },
     ],
+    // orçamentos de produção divulgados (verificados em duas fontes); dólar convertido pela mesma taxa dos R$ 134 milhões (R$ 5,58)
+    comparacao: {
+      titulo: 'R$ 134 milhões: mais caro que sucessos do Oscar',
+      sub: 'O valor que Flávio negociou com Vorcaro para o filme sobre o pai passa do orçamento inteiro de filmes premiados e campeões de bilheteria. Seria o filme mais caro da história do cinema brasileiro, segundo a imprensa.',
+      principal: { titulo: 'Dark Horse', nota: 'filme sobre Jair: valor negociado com Vorcaro', brl: 134 },
+      filmes: [
+        { titulo: 'Som da Liberdade', nota: '2023 · mesmo ator, Jim Caviezel · US$ 250 milhões de bilheteria', brl: 81, vezes: 'custou 1,7× menos' },
+        { titulo: 'Parasita', nota: '2019 · Oscar de melhor filme', brl: 64, vezes: 'custou 2× menos' },
+        { titulo: 'Ainda Estou Aqui', nota: '2024 · primeiro Oscar do Brasil (estimativa)', brl: 45, vezes: 'custou 3× menos' },
+        { titulo: 'Anora', nota: '2024 · Oscar de melhor filme', brl: 33, vezes: 'custou 4× menos' },
+        { titulo: 'O Agente Secreto', nota: '2025 · indicado ao Oscar de melhor filme', brl: 28, vezes: 'custou 4,8× menos' },
+        { titulo: 'Corra!', nota: '2017 · Oscar de roteiro original', brl: 25, vezes: 'custou 5× menos' },
+      ],
+      nota: 'Orçamentos de produção divulgados; valores em dólar convertidos pela mesma taxa usada para os R$ 134 milhões (R$ 5,58). O de Ainda Estou Aqui é estimativa da Folha. R$ 134 milhões (US$ 24 milhões) é o valor que Flávio negociou com Vorcaro; Vorcaro pagou ao menos R$ 61 milhões, e a produtora declarou gasto de cerca de R$ 75 milhões.',
+      fontes: [
+        { nome: 'The Numbers (Som da Liberdade)', url: 'https://www.the-numbers.com/movie/Sound-of-Freedom-(2023)' },
+        { nome: 'Box Office Mojo (Parasita)', url: 'https://www.boxofficemojo.com/title/tt6751668/' },
+        { nome: 'Folha (Ainda Estou Aqui)', url: 'https://www1.folha.uol.com.br/ilustrada/2025/02/orcado-em-r-45-milhoes-ainda-estou-aqui-tem-valor-de-campanha-incalculavel.shtml' },
+        { nome: 'The Playlist (Anora)', url: 'https://theplaylist.net/anora-wins-best-picture-at-the-2025-oscars-20250302/' },
+        { nome: 'CNN Brasil (O Agente Secreto)', url: 'https://www.cnnbrasil.com.br/pop/oscar-2026-o-agente-secreto-tem-o-menor-orcamento-dos-indicados/' },
+        { nome: 'Box Office Mojo (Corra!)', url: 'https://www.boxofficemojo.com/title/tt5052448/' },
+        { nome: 'Omelete (maior orçamento do cinema brasileiro)', url: 'https://www.omelete.com.br/filmes/dark-horse-filme-sobre-bolsonaro-tem-o-maior-orcamento-do-cinema-brasileiro' },
+        { nome: 'Metrópoles (gasto declarado)', url: 'https://www.metropoles.com/sao-paulo/produtora-filme-bolsonaro-eua' },
+      ],
+    },
   },
   // "Flávio em 1 minuto": cartões ilustrados, do mais recente ao mais antigo. Cada um resume um episódio ("event"),
   // com o número em destaque, uma frase e a situação jurídica atual. Os textos saem do próprio episódio.
@@ -169,6 +194,12 @@ window.STORY = {
       id: 'master', tema: 'Banco Master', cat: 'financas', icon: 'filme', ano: '2026', grande: 'R$ 134 milhões',
       texto: 'pedidos por Flávio a Daniel Vorcaro, ex-dono do Banco Master, hoje preso, para um filme sobre o pai. Flávio confirmou ter pedido o dinheiro. Vorcaro pagou ao menos R$ 61 milhões.',
       status: 'Flávio é investigado no STF por corrupção, lavagem e evasão de divisas. Não foi indiciado.',
+      event: 'banco-master-intercept-flavio-dark-horse',
+    },
+    {
+      id: 'filme', tema: 'Banco Master', cat: 'financas', icon: 'filme', ano: '2026', grande: '3× Ainda Estou Aqui',
+      texto: 'O valor que Flávio negociou com Vorcaro para o filme sobre o pai daria para pagar três “Ainda Estou Aqui”, o primeiro Oscar do Brasil, ou duas vezes “Parasita”, Oscar de melhor filme.',
+      status: 'Comparação com orçamentos divulgados pela imprensa; o de “Ainda Estou Aqui” (R$ 45 milhões) é estimativa. A produtora declarou gasto de cerca de R$ 75 milhões.',
       event: 'banco-master-intercept-flavio-dark-horse',
     },
     {

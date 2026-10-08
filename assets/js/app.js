@@ -1084,6 +1084,7 @@
     $('#agSt').innerHTML = `<b>Situação:</b> ${esc(a.status)}`
     $('#agList').innerHTML = linhas.map(l => `<li><button type="button" data-open="${esc(l.event)}"><time>${esc(l.data)}</time><span>${esc(l.texto)}</span><i aria-hidden="true">→</i></button></li>`).join('')
     $('#agShare').innerHTML = `${SHARE_SVG}<span>Compartilhar</span>`
+    renderComparacao(a)
     sec.hidden = false
     $('#agGo').onclick = () => openEvent(a.event, linhas.map(l => evById.get(l.event)))
     $('#agShare').onclick = () => openShare(casoShare(evById.get(a.event)))
@@ -1092,6 +1093,26 @@
       applyFilters()
       goTo($('#timeline'))
     }
+  }
+  // quanto custam filmes de sucesso, ao lado dos R$ 134 milhões pedidos para o filme sobre Jair
+  function renderComparacao(a) {
+    const c = a.comparacao, box = $('#agCmp')
+    if (!c || !c.filmes || !c.filmes.length || !box) return
+    const all = [{ titulo: c.principal.titulo, nota: c.principal.nota, brl: c.principal.brl, main: true }, ...c.filmes]
+    const max = Math.max(...all.map(f => f.brl))
+    const fmt = v => v.toLocaleString('pt-BR', { maximumFractionDigits: v < 10 ? 1 : 0 })
+    box.innerHTML = `<p class="ag-cmp-h">${esc(c.titulo)}</p>
+      ${c.sub ? `<p class="ag-cmp-sub">${esc(c.sub)}</p>` : ''}
+      <ol class="ag-bars">${all.map(f => `<li class="${f.main ? 'is-main' : ''}">
+        <span class="ag-bar-l"><b>${esc(f.titulo)}</b><small>${esc(f.nota)}</small></span>
+        <span class="ag-bar" aria-hidden="true"><i style="--w:${(f.brl / max * 100).toFixed(1)}%"></i></span>
+        <span class="ag-bar-v">R$ ${fmt(f.brl)} mi${f.vezes ? `<small>${esc(f.vezes)}</small>` : ''}</span>
+      </li>`).join('')}</ol>
+      <p class="ag-cmp-note">${esc(c.nota)}${(c.fontes || []).length ? ` Fontes: ${c.fontes.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.nome)}</a>`).join(', ')}.` : ''}</p>`
+    box.hidden = false
+    if (reduce || !('IntersectionObserver' in window)) { box.classList.add('in'); return }
+    const io = new IntersectionObserver(en => { if (en.some(x => x.isIntersecting)) { box.classList.add('in'); io.disconnect() } }, { threshold: 0.3 })
+    io.observe(box)
   }
   const resumoCards = () => (STORY.resumo || []).filter(c => evById.has(c.event))
   function renderResumo() {
