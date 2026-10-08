@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conheça Bolsonaro — Flávio, episódio por episódio</title>
+  <meta name="description" content="A história de Flávio Bolsonaro, do pai, dos irmãos e dos aliados contada em capítulos: rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master e a trama golpista. Com fontes.">
+  <meta property="og:title" content="Conheça Bolsonaro — Flávio, episódio por episódio">
+  <meta property="og:description" content="386 episódios, de 1986 a 2026, contados em capítulos e com as fontes.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 58 54H6z' fill='none' stroke='%238052ff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,200..700;1,300..400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#historia">Pular para a história</a>
+
+  <header class="nav" id="nav">
+    <a class="logo" href="#topo" aria-label="Conheça Bolsonaro — início">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 19.5H3z"/></svg>
+      <span>Conheça Bolsonaro</span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Seções">
+      <a href="#historia">História</a>
+      <a href="#numeros">Números</a>
+      <a href="#pessoas">Pessoas</a>
+      <a href="#conexoes">Conexões</a>
+      <a href="#videos">Vídeos</a>
+      <a href="#metodo">Método</a>
+    </nav>
+    <a class="btn-primary nav-cta" href="#historia" data-start>Começar</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Abrir menu"><i></i><i></i></button>
+  </header>
+
+  <main id="topo">
+    <!-- CAPA -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <p class="label" id="heroLabel">Dossiê aberto</p>
+        <h1 class="display" id="heroTitle"><span class="line"><span>Flávio</span></span><span class="line"><span>Bolsonaro,</span></span><span class="line"><span>episódio por</span></span><span class="line"><span>episódio.</span></span></h1>
+        <p class="lede">
+          Rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master, a trama golpista. De 1986 a 2026, os casos
+          que envolvem o senador e candidato à Presidência, o pai, os irmãos e os aliados, contados em capítulos e com as fontes.
+        </p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#historia" data-start>Começar a história <span aria-hidden="true">↓</span></a>
+          <button class="link-ghost" type="button" id="heroMilestones">Ver só os marcos →</button>
+        </div>
+        <dl class="hero-stats" id="heroStats"></dl>
+      </div>
+      <figure class="hero-visual">
+        <canvas id="constellation" aria-label="Constelação: cada triângulo é um episódio, do centro (1986) para fora (2026)" role="img"></canvas>
+        <div class="c-tip" id="cTip" hidden></div>
+        <figcaption class="c-caption"><b>Cada triângulo é um episódio.</b> Do centro (1986) para fora (2026). Passe o mouse e clique.</figcaption>
+      </figure>
+    </section>
+
+    <!-- COMO LER -->
+    <section class="reading" aria-label="Como ler">
+      <p class="label">Como ler</p>
+      <p class="reading-text">
+        Role para avançar na história. Cada episódio tem uma ficha com a <b>situação jurídica atual</b> e
+        <b>o que dizem os citados</b>. Investigação, denúncia e indiciamento não são condenação. Provas anuladas e casos
+        arquivados aparecem indicados.
+      </p>
+    </section>
+
+    <!-- HISTÓRIA -->
+    <section class="story" id="historia" aria-labelledby="storyTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="storyTitle">A história</h2>
+        <div class="section-aside">
+          <p class="label">01 · Linha do tempo</p>
+          <p class="body" id="storyAside">Uma história em capítulos, de 1986 a hoje. Use a busca e os filtros para ir direto a uma pessoa ou a um tema.</p>
+        </div>
+      </div>
+
+      <div class="toolbar" id="toolbar">
+        <div class="toolbar-row">
+          <label class="search" id="searchBox">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+            <input id="q" type="search" placeholder="Buscar: Queiroz, mansão, Abin, STJ…" autocomplete="off" aria-label="Buscar episódios">
+          </label>
+          <div class="tb-group">
+            <button class="tb-btn" id="peopleBtn" type="button" aria-expanded="false" aria-controls="peoplePop">Pessoas <span class="tb-n" id="peopleN"></span></button>
+            <button class="tb-btn" id="themesBtn" type="button" aria-expanded="false" aria-controls="themesPop">Temas <span class="tb-n" id="themesN"></span></button>
+            <button class="tb-btn tb-toggle" id="onlyMilestones" type="button" aria-pressed="false">Só marcos</button>
+          </div>
+          <p class="tb-count" id="resultCount" aria-live="polite"></p>
+        </div>
+        <div class="pop" id="peoplePop" hidden>
+          <p class="pop-title">Envolvendo <small>Escolha duas ou mais pessoas para ver o que as liga.</small></p>
+          <div class="chips" id="personChips"></div>
+        </div>
+        <div class="pop" id="themesPop" hidden>
+          <p class="pop-title">Temas</p>
+          <div class="chips" id="catChips"></div>
+        </div>
+        <div class="toolbar-row toolbar-years">
+          <nav class="years" id="years" aria-label="Ir para o ano"></nav>
+        </div>
+        <div class="active-filters" id="activeFilters"></div>
+      </div>
+
+      <div class="timeline" id="timeline">
+        <p class="loading">Carregando a história…</p>
+      </div>
+    </section>
+
+    <!-- NÚMEROS -->
+    <section class="block" id="numeros" aria-labelledby="numTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="numTitle">Os números</h2>
+        <div class="section-aside">
+          <p class="label">02 · Valores citados</p>
+          <p class="body">Valores que aparecem em investigações, denúncias e reportagens. Cada um abre a ficha de origem.</p>
+        </div>
+      </div>
+      <div class="numbers" id="numbersGrid"></div>
+    </section>
+
+    <!-- PESSOAS -->
+    <section class="block" id="pessoas" aria-labelledby="ppTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="ppTitle">Pessoas</h2>
+        <div class="section-aside">
+          <p class="label">03 · Quem é quem</p>
+          <p class="body">A família, o gabinete, os aliados e as personagens dos casos. Escolha alguém para ver só os episódios dessa pessoa.</p>
+        </div>
+      </div>
+      <div class="chips people-tabs" id="peopleTabs"></div>
+      <div class="people" id="peopleGrid"></div>
+    </section>
+
+    <!-- CONEXÕES -->
+    <section class="block" id="conexoes" aria-labelledby="grTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="grTitle">Conexões</h2>
+        <div class="section-aside">
+          <p class="label">04 · Mapa</p>
+          <p class="body">Duas pessoas ficam ligadas quando aparecem no mesmo episódio. Quanto mais forte a linha, mais episódios em comum. Ministros, juízes e procuradores ficam de fora: aparecem pelo cargo, não por ligação com a família.</p>
+        </div>
+      </div>
+      <div class="graph-wrap">
+        <div class="graph" id="graph" role="img" aria-label="Mapa de conexões entre as pessoas citadas"></div>
+        <aside class="graph-panel" id="graphPanel"><p class="muted">Escolha uma pessoa no mapa.</p></aside>
+      </div>
+    </section>
+
+    <!-- VÍDEOS -->
+    <section class="block" id="videos" aria-labelledby="vdTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="vdTitle">Vídeos</h2>
+        <div class="section-aside">
+          <p class="label">05 · Arquivo</p>
+          <p class="body">Reportagens de veículos de imprensa e registros de canais oficiais. O vídeo só carrega quando você clica.</p>
+        </div>
+      </div>
+      <div class="chips video-tabs" id="videoChips"></div>
+      <div class="videos" id="videosGrid"></div>
+    </section>
+
+    <!-- MÉTODO -->
+    <section class="block" id="metodo" aria-labelledby="mtTitle">
+      <div class="section-head">
+        <h2 class="heading-lg" id="mtTitle">Método</h2>
+        <div class="section-aside">
+          <p class="label">06 · Transparência</p>
+          <p class="body">Como os dados foram reunidos e conferidos.</p>
+        </div>
+      </div>
+      <div class="method">
+        <dl class="facts">
+          <dt>Fontes</dt>
+          <dd>Reportagens de veículos estabelecidos (os mais citados aparecem ao lado) e documentos oficiais (STF, TSE, MPRJ,
+            Senado, Câmara, Alerj). Os textos são resumos próprios. Para ler a reportagem completa, abra as fontes listadas
+            em cada ficha.</dd>
+          <dt>Checagem</dt>
+          <dd>Uma primeira rodada reuniu os episódios. Uma segunda rodada, independente, reabriu cada link, conferiu datas,
+            valores e termos jurídicos e removeu o que não se sustentou. Os vídeos foram confirmados um a um no YouTube.
+            As imagens vêm de bancos com licença livre (Wikimedia Commons, Agência Brasil, Agência Senado), com crédito.</dd>
+          <dt>Termos</dt>
+          <dd><b>Investigação</b>: apuração em curso. <b>Indiciamento</b>: a polícia vê indícios de crime. <b>Denúncia</b>:
+            o Ministério Público acusa formalmente. <b>Réu</b>: a Justiça aceita a denúncia. <b>Condenação</b>: sentença,
+            que pode ter recurso. <b>Arquivamento</b> e <b>anulação de provas</b> encerram ou enfraquecem um caso e estão
+            indicados nas fichas.</dd>
+          <dt>Erros</dt>
+          <dd>Toda ficha mostra as fontes. Se algo estiver desatualizado ou impreciso, a correção deve partir da fonte original.</dd>
+        </dl>
+        <div class="method-side">
+          <dl class="method-stats" id="methodStats"></dl>
+          <p class="label">Veículos mais citados</p>
+          <div class="outlets" id="outlets"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-mark" aria-hidden="true">Conheça Bolsonaro</p>
+    <div class="footer-row">
+      <p>Compilação de informações públicas, com fontes. Dados até <span id="footerDate"></span>.</p>
+      <p class="muted">Fotos: Wikimedia Commons, Agência Brasil e Agência Senado, nas licenças indicadas. Vídeos incorporados do YouTube, de seus canais de origem.</p>
+    </div>
+  </footer>
+
+  <button class="progress-pill" id="progressPill" type="button" aria-label="Voltar à busca e aos filtros"><b id="ppYear">—</b><span id="ppCount"></span><i aria-hidden="true">Filtros ↑</i></button>
+
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet-inner" id="sheetInner"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </dialog>
+
+  <script src="data/timeline.js"></script>
+  <script src="data/story.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>

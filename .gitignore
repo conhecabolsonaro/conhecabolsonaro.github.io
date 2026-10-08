@@ -1,0 +1,11 @@
+# Publica só o que o site precisa: página, estilos, scripts e dados gerados.
+# A pesquisa bruta, os scripts de geração e as configurações locais ficam fora.
+/*
+!/index.html
+!/assets/
+!/data/
+/data/*
+!/data/timeline.js
+!/data/story.js
+!/.nojekyll
+!/.gitignore
