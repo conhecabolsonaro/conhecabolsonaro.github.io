@@ -193,10 +193,9 @@
           <dt>Como ler</dt>
           <dd>Cada ficha traz a <b>situação jurídica atual</b> e <b>o que dizem os citados</b>. Investigação, denúncia e
             indiciamento não são condenação. Provas anuladas e casos arquivados aparecem indicados.</dd>
-          <dt>Recortes</dt>
-          <dd>Na entrada, o site pergunta se você se considera bolsonarista. Quem responde “sim” vê os casos de Flávio e
-            dos irmãos; quem responde “não” vê também os do pai e dos aliados. Nos dois, os episódios de Flávio vêm em destaque.
-            A resposta fica só neste aparelho e pode ser refeita no fim da página.</dd>
+          <dt>Foco</dt>
+          <dd>O site é o mesmo para todos. Os casos de Flávio vêm em destaque; os do pai, dos irmãos e dos aliados
+            aparecem como contexto, recolhidos.</dd>
           <dt>Letra grande</dt>
           <dd>Quem responde que tem 60 anos ou mais, ou toca no botão <b>A+</b>, vê o site com letra maior, mais contraste e sem animações.
             A história vira leitura corrida, de cima para baixo.</dd>
@@ -230,7 +229,6 @@
     <div class="footer-acts">
       <button type="button" data-sh-site>Compartilhar o site</button>
       <button type="button" data-letra aria-pressed="false"><span data-letra-label>Letra grande</span></button>
-      <button type="button" data-refazer>Refazer as perguntas do início</button>
     </div>
   </footer>
 
@@ -239,23 +237,14 @@
   <dialog class="intro" id="intro" aria-labelledby="introQ">
     <div class="intro-inner">
       <div class="intro-step" data-step="idade">
-        <p class="label">Antes de começar <span class="intro-n"></span></p>
+        <p class="label">Antes de começar</p>
         <h2 class="intro-q" id="introQ">Você tem 60 anos ou mais?</h2>
         <div class="intro-actions">
           <button class="intro-btn" type="button" data-idade="sim">Sim</button>
           <button class="intro-btn" type="button" data-idade="nao">Não</button>
         </div>
-        <p class="intro-note">Com “sim”, o site fica com letra maior e leitura mais simples. Dá para mudar quando quiser no botão A+, no alto da página.</p>
-      </div>
-      <div class="intro-step" data-step="recorte" hidden>
-        <p class="label">Antes de começar <span class="intro-n"></span></p>
-        <h2 class="intro-q" id="introQ2">Você se considera bolsonarista?</h2>
-        <div class="intro-actions">
-          <button class="intro-btn" type="button" data-mode="bolsonarista">Sim</button>
-          <button class="intro-btn" type="button" data-mode="geral">Não</button>
-        </div>
-        <button class="link-ghost intro-skip" type="button" data-mode="geral">Prefiro não responder</button>
-        <p class="intro-note">As respostas ficam neste aparelho e não são enviadas a ninguém.</p>
+        <p class="intro-note">Com “sim”, o site fica com letra maior e leitura mais simples. Dá para mudar quando quiser no botão A+, no alto da página.
+          A resposta fica neste aparelho e não é enviada a ninguém.</p>
       </div>
     </div>
   </dialog>

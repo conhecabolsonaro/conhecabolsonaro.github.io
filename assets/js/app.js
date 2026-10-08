@@ -75,19 +75,11 @@
     const names = e.people.map(k => (people.get(k) || {}).name || k).join(' ')
     e._q = norm([e.title, e.summary, e.details, e.status, e.defense, names, catLabel(e.category), e.sources.map(s => s.outlet + ' ' + s.title).join(' ')].join(' '))
   })
-  // ------------------------------------------------------------------ recortes (pergunta de entrada)
-  // bolsonarista: Flávio e irmãos, sem episódios que acusam o pai · geral: todos. Nos dois, Flávio é a estrela.
-  const MODES = {
-    bolsonarista: { label: 'Flávio e irmãos', lede: 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.' },
-    geral: { label: 'Todos, foco em Flávio', lede: 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.' },
-  }
-  const MODE_KEY = 'cb-recorte'
-  const urlMode = new URLSearchParams(location.search).get('recorte')
-  const storedMode = (() => { try { const m = localStorage.getItem(MODE_KEY); return MODES[m] ? m : null } catch (err) { return null } })()
-  let mode = MODES[urlMode] ? urlMode : storedMode
-  const modeChosen = !!mode
-  const keepModeInUrl = !!MODES[urlMode]
-  if (!mode) mode = 'geral'
+  // ------------------------------------------------------------------ o mesmo site para todos, com Flávio em destaque
+  const LEDE = 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.'
+  const mode = 'geral'
+  // a antiga pergunta "você se considera bolsonarista?" saiu; a resposta guardada no aparelho é apagada
+  try { localStorage.removeItem('cb-recorte') } catch (err) { /* sem armazenamento */ }
   const BROTHERS = ['carlos', 'eduardo', 'renan']
   // classificação de cada episódio (research/foco.json); sem ela, uma aproximação pelas pessoas citadas
   const focusOf = e => e.focus || { f: e.people.includes('flavio') ? 'p' : 'a', b: e.people.filter(k => BROTHERS.includes(k)), j: false }
@@ -95,8 +87,7 @@
   // gravidade (research/gravidade.json): grave = dinheiro público, corrupção, lavagem, rachadinha, crimes graves
   const gravOf = e => e.grav || { g: e.importance === 3 ? 'grave' : e.importance === 2 ? 'medio' : 'menor', r: '' }
   const isGrave = e => gravOf(e).g === 'grave'
-  const inMode = (e, m = mode) => m !== 'bolsonarista' || ((focusOf(e).f === 'p' || focusOf(e).b.length > 0) && !focusOf(e).j)
-  let BASE = D.events.filter(e => inMode(e))
+  const BASE = D.events
   let viewCount = new Map()
   function countPeople() {
     viewCount = new Map()
@@ -105,14 +96,13 @@
   const vc = k => viewCount.get(k) || 0
   countPeople()
 
-  // cenas da história na ordem da cronologia, ancoradas no episódio que revelam; numeradas conforme o recorte
+  // cenas da história na ordem da cronologia, ancoradas no episódio que revelam
   let SCENES = [], sceneByEvent = new Set()
   function computeScenes() {
     const visible = c => !c.views || c.views.includes(mode)
-    const variant = c => (mode === 'bolsonarista' && c.bolso) ? { ...c, ...c.bolso } : c
     let k = 0
-    const chapters = STORY.chapters.filter(visible).map(c => ({ ...variant(c), n: c.id === 'prologo' ? 'Prólogo' : `Capítulo ${++k}` }))
-    SCENES = [...chapters.map(c => ({ ch: c, epi: false })), ...(STORY.epilogue && visible(STORY.epilogue) ? [{ ch: variant(STORY.epilogue), epi: true }] : [])]
+    const chapters = STORY.chapters.filter(visible).map(c => ({ ...c, n: c.id === 'prologo' ? 'Prólogo' : `Capítulo ${++k}` }))
+    SCENES = [...chapters.map(c => ({ ch: c, epi: false })), ...(STORY.epilogue && visible(STORY.epilogue) ? [{ ch: STORY.epilogue, epi: true }] : [])]
       .filter(x => evById.has(x.ch.event))
       .map(x => ({ ...x, sort: evById.get(x.ch.event).sort }))
       .sort((a, b) => a.sort.localeCompare(b.sort))
@@ -186,7 +176,6 @@
     if (state.cats.size) sp.set('temas', [...state.cats].join(','))
     if (state.milestones) sp.set('graves', '1')
     if (state.q) sp.set('q', state.q)
-    if (keepModeInUrl) sp.set('recorte', mode)
     const qs = sp.toString()
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
   }
@@ -213,7 +202,7 @@
     const [y0, y1] = D.meta.years
     $('#heroLabel').textContent = `${BASE.length} episódios · dados até ${updated.short}`
     $('#footerDate').textContent = updated.long
-    $('#heroLede').textContent = MODES[mode].lede
+    $('#heroLede').textContent = LEDE
   }
   function countUp(el, to, delay = 0) {
     if (reduce) return
@@ -447,9 +436,7 @@
     return ''
   }
   function goHTML(ch) {
-    // no recorte bolsonarista a cena não abre fichas que ficaram fora dele
-    const inBase = new Set(BASE.map(e => e.id))
-    const ids = [ch.event, ...(ch.also || [])].filter(id => id && evById.has(id) && (mode !== 'bolsonarista' || inBase.has(id)))
+    const ids = [ch.event, ...(ch.also || [])].filter(id => id && evById.has(id))
     const share = `<button class="btn-share ghost" type="button" data-sh-cap="${esc(ch.id)}">${SHARE_SVG}<span>Compartilhar</span></button>`
     if (!ids.length) return `<div class="scene-go">${share}</div>`
     const [main, ...rest] = ids
@@ -1092,8 +1079,7 @@
   // ------------------------------------------------------------------ pessoas
   let peopleGroup = 'todos'
   function renderPeople() {
-    // no recorte bolsonarista o pai não ganha cartão
-    const ppl = D.people.filter(p => vc(p.key) > 0 && p.profile && !(mode === 'bolsonarista' && p.key === 'jair')).map(p => ({ ...p, count: vc(p.key) }))
+    const ppl = D.people.filter(p => vc(p.key) > 0 && p.profile).map(p => ({ ...p, count: vc(p.key) }))
     if (!ppl.some(p => p.group === peopleGroup) && peopleGroup !== 'todos') peopleGroup = 'todos'
     const groups = ['todos', ...Object.keys(GROUPS).filter(g => ppl.some(p => p.group === g))]
     $('#peopleTabs').innerHTML = groups.map(g => `<button class="chip no-av" type="button" data-group="${g}" aria-pressed="${g === peopleGroup}">${g === 'todos' ? 'Todos' : GROUPS[g][0]} <span class="n">${g === 'todos' ? ppl.length : ppl.filter(p => p.group === g).length}</span></button>`).join('')
@@ -1221,9 +1207,7 @@
   // ------------------------------------------------------------------ vídeos
   let videoCat = 'todos', videoLimit = 9
   function renderVideos() {
-    // no recorte bolsonarista, só vídeos ligados a episódios do recorte
-    const inBase = new Set(BASE.map(e => e.id))
-    const vids = (D.videos || []).filter(v => mode !== 'bolsonarista' || (v.event && inBase.has(v.event)))
+    const vids = D.videos || []
     $('#videos').hidden = !vids.length
     if (!vids.length) return
     const cats = [...new Set(vids.map(v => v.category).filter(Boolean))]
@@ -1269,58 +1253,21 @@
     gObs.observe($('#conexoes'))
   }
 
-  // ------------------------------------------------------------------ recorte: pergunta e troca
-  function setMode(m) {
-    if (!MODES[m]) return
-    mode = m
-    try { localStorage.setItem(MODE_KEY, m) } catch (err) { /* sem armazenamento: vale só nesta visita */ }
-    BASE = D.events.filter(e => inMode(e))
-    countPeople(); computeScenes()
-    ;[...state.persons].forEach(k => { if (!vc(k)) state.persons.delete(k) })
-    renderHero()
-    if (constellation) constellation.rebuild(BASE)
-    renderFilterControls(); renderAssuntos(); renderPeople()
-    videoLimit = 9; renderVideos()
-    if (graphReady) { graphReady = false; initGraph() }
-    applyFilters()
-  }
+  // ------------------------------------------------------------------ pergunta de entrada: idade (letra grande)
   const intro = $('#intro')
-  let introSteps = []
-  function showStep(i) {
-    const name = introSteps[i]
-    $$('.intro-step', intro).forEach(st => { st.hidden = st.dataset.step !== name })
-    $$('.intro-n', intro).forEach(n => { n.textContent = introSteps.length > 1 ? `${i + 1} de ${introSteps.length}` : '' })
-    const q = $(`.intro-step[data-step="${name}"] .intro-q`, intro)
-    intro.setAttribute('aria-labelledby', q.id)
+  function askIdade() {
+    if (intro.open) return
+    intro.showModal()
     // o foco vai para a pergunta (e não para o "Sim", que pareceria já escolhido)
-    q.setAttribute('tabindex', '-1'); q.focus({ preventScroll: true })
+    const q = $('#introQ'); q.setAttribute('tabindex', '-1'); q.focus({ preventScroll: true })
   }
-  function askIntro(steps) {
-    introSteps = steps.filter(Boolean)
-    if (!introSteps.length) return
-    if (!intro.open) intro.showModal()
-    showStep(0)
-  }
-  const askMode = () => askIntro(['idade', 'recorte'])
   intro.addEventListener('click', e => {
-    const ib = e.target.closest('[data-idade]')
-    if (ib) {
-      Letra.set(ib.dataset.idade === 'sim')
-      const i = introSteps.indexOf('idade')
-      if (i + 1 < introSteps.length) showStep(i + 1)
-      else intro.close()
-      return
-    }
-    const b = e.target.closest('[data-mode]'); if (!b) return
-    intro.close(); setMode(b.dataset.mode); window.scrollTo({ top: 0, behavior: 'auto' })
+    const b = e.target.closest('[data-idade]'); if (!b) return
+    Letra.set(b.dataset.idade === 'sim')
+    intro.close(); window.scrollTo({ top: 0, behavior: 'auto' })
   })
-  // Esc sem responder vale como "prefiro não responder"
-  intro.addEventListener('cancel', () => {
-    if (!Letra.chosen()) Letra.set(false)
-    if (!localStorageMode()) setMode('geral')
-  })
-  const localStorageMode = () => { try { return localStorage.getItem(MODE_KEY) } catch (err) { return 'geral' } }
-  $$('[data-refazer]').forEach(b => b.addEventListener('click', askMode))
+  // Esc sem responder vale como "não"
+  intro.addEventListener('cancel', () => { if (!Letra.chosen()) Letra.set(false) })
   // letra grande ligada ou desligada: a história é remontada sem (ou com) a trava de rolagem
   document.addEventListener('letra', () => {
     reduce = reduceMQ || Letra.on
@@ -1340,11 +1287,10 @@
   renderMethod()
   bindNav()
   applyFilters()
-  // quem chega por um link de ficha lê a ficha primeiro; as perguntas vêm quando ela fecha
-  const pendingSteps = [Letra.chosen() ? null : 'idade', modeChosen ? null : 'recorte'].filter(Boolean)
-  if (pendingSteps.length) {
-    if (location.hash.startsWith('#ficha/')) sheet.addEventListener('close', () => askIntro(pendingSteps), { once: true })
-    else askIntro(pendingSteps)
+  // quem chega por um link de ficha lê a ficha primeiro; a pergunta vem quando ela fecha
+  if (!Letra.chosen()) {
+    if (location.hash.startsWith('#ficha/')) sheet.addEventListener('close', askIdade, { once: true })
+    else askIdade()
   }
   // botões de WhatsApp do site (seção "Espalhe")
   if (SH) $$('[data-wa-site]').forEach(a => { a.href = SH.links(siteShare(a.dataset.waSite === 'grande')).whatsapp })
