@@ -142,6 +142,95 @@ window.STORY = {
   ],
   // Flávio em 4 assuntos: leitura rápida logo depois da capa. Cada linha abre a ficha do episódio indicado.
   // "filtro" diz o que "Ver tudo" mostra na linha do tempo; "rostos" são as pessoas do assunto.
+  // "Flávio em 1 minuto": cartões ilustrados logo depois da capa. Cada um resume um episódio ("event"),
+  // com o número em destaque, uma frase e a situação jurídica atual. Os textos saem do próprio episódio.
+  // icon: medalha | megafone | pessoas | extrato | dinheiro | documento | algema | repasse | loja | predios | casa | olho | filme | grafico
+  resumo: [
+    {
+      id: 'medalha', tema: 'Milícia', cat: 'milicia', icon: 'medalha', ano: '2005', grande: 'Medalha Tiradentes',
+      texto: 'Flávio propôs a maior honraria da Alerj ao PM Adriano da Nóbrega, que estava preso, acusado de homicídio. Em 2019, o MP o apontou como chefe de milícia.',
+      status: 'Homenagem aprovada em 2005 e nunca revogada. Adriano foi absolvido do homicídio em 2007.',
+      event: 'milicia-adriano-medalha-tiradentes-2005',
+    },
+    {
+      id: 'defesa', tema: 'Milícia', cat: 'milicia', icon: 'megafone', ano: '2007', grande: 'Defendeu milícias',
+      texto: 'Na tribuna da Alerj, Flávio descreveu as milícias como policiais que afastam bandidos. Depois, disse que pretendia propor regulamentá-las.',
+      status: 'Discurso registrado pela Alerj. Não há registro de que o projeto tenha sido apresentado.',
+      event: 'milicia-adriano-flavio-defende-milicias-2007',
+    },
+    {
+      id: 'gabinete', tema: 'Milícia', cat: 'milicia', icon: 'pessoas', ano: '2019', grande: 'Mãe e mulher',
+      texto: 'A mãe e a mulher de Adriano da Nóbrega foram assessoras no gabinete de Flávio na Alerj até 2018. Queiroz assumiu ter feito as indicações.',
+      status: 'Investigadas no caso da rachadinha, arquivado em 2022. Flávio não é réu na ação de improbidade contra a mulher de Adriano.',
+      event: 'milicia-adriano-mae-e-ex-mulher-no-gabinete',
+    },
+    {
+      id: 'coaf', tema: 'Queiroz', cat: 'rachadinha', icon: 'extrato', ano: '2018', grande: 'R$ 1,2 milhão',
+      texto: 'movimentados em um ano na conta de Fabrício Queiroz, assessor de Flávio. O Coaf viu como atípico. Só numa agência dentro da Alerj, os saques somaram R$ 159 mil.',
+      status: 'Deu origem à investigação. As provas foram anuladas em 2021 e ninguém foi condenado.',
+      event: 'rachadinha-alerj-origem-coaf-queiroz-revelado',
+    },
+    {
+      id: 'depositos', tema: 'Rachadinha', cat: 'rachadinha', icon: 'dinheiro', ano: '2019', grande: '48 × R$ 2 mil',
+      texto: 'depósitos em dinheiro vivo na conta de Flávio, feitos nos caixas eletrônicos da Alerj em cerca de um mês de 2017. Total: R$ 96 mil.',
+      status: 'O STF anulou os relatórios do Coaf usados no caso, que foi arquivado em 2022.',
+      event: 'rachadinha-alerj-origem-48-depositos',
+    },
+    {
+      id: 'denuncia', tema: 'Rachadinha', cat: 'rachadinha', icon: 'documento', ano: '2020', grande: 'R$ 6,1 milhões',
+      texto: 'teriam sido desviados do gabinete de Flávio entre 2007 e 2018, com 12 assessores devolvendo parte do salário, segundo a denúncia do MP do Rio.',
+      status: 'Denúncia rejeitada em 2022, sem julgamento de mérito, depois que as principais provas foram anuladas.',
+      event: 'rachadinha-alerj-processo-denuncia-mprj',
+    },
+    {
+      id: 'atibaia', tema: 'Queiroz', cat: 'rachadinha', icon: 'algema', ano: '2020', grande: 'Queiroz preso',
+      texto: 'O ex-assessor, apontado pelo MP como operador do esquema, foi preso em Atibaia (SP), num imóvel do advogado de Flávio, Frederick Wassef.',
+      status: 'As decisões do caso foram anuladas pelo STJ em 2021. Não há condenação.',
+      event: 'rachadinha-alerj-processo-queiroz-preso-atibaia',
+    },
+    {
+      id: 'adriano', tema: 'Milícia', cat: 'milicia', icon: 'repasse', ano: '2020', grande: 'R$ 400 mil',
+      texto: 'repassados por Adriano da Nóbrega a contas administradas por Queiroz, segundo o MP, que pôs Adriano no “núcleo executivo” do esquema do gabinete.',
+      status: 'Estimativa do MP. O caso foi arquivado em 2022, depois da anulação das provas.',
+      event: 'milicia-adriano-mp-nucleo-executivo-400-mil',
+    },
+    {
+      id: 'chocolates', tema: 'Dinheiro vivo', cat: 'imoveis', icon: 'loja', ano: '2020', grande: '1.512 depósitos',
+      texto: 'em dinheiro vivo na loja de chocolates de Flávio, de 2015 a 2018. Para o MP, a loja servia para lavar o dinheiro da rachadinha.',
+      status: 'A suspeita foi arquivada com o caso, em 2022. O STF negou a reabertura em 2025.',
+      event: 'imoveis-dinheiro-vivo-loja-chocolates-1512-depositos',
+    },
+    {
+      id: 'imoveis', tema: 'Dinheiro vivo', cat: 'imoveis', icon: 'predios', ano: '2022', grande: '51 de 107',
+      texto: 'imóveis negociados pela família Bolsonaro foram pagos total ou parcialmente em dinheiro vivo, segundo escrituras reunidas pelo UOL.',
+      status: 'Comprar imóvel em espécie não é crime. Não há denúncia sobre essas compras.',
+      event: 'imoveis-dinheiro-vivo-uol-51-de-107-imoveis',
+    },
+    {
+      id: 'mansao', tema: 'Mansão', cat: 'imoveis', icon: 'casa', ano: '2021', grande: 'R$ 5,97 milhões',
+      texto: 'é o preço da mansão de Flávio em Brasília. R$ 3,1 milhões vieram do BRB, banco público, com juros abaixo dos praticados na época.',
+      status: 'A Polícia Federal apura o financiamento desde 2026. Não há acusação formal.',
+      event: 'mansao-brb-compra-mansao-lago-sul',
+    },
+    {
+      id: 'abin', tema: 'Abin', cat: 'abin', icon: 'olho', ano: '2020', grande: 'Abin',
+      texto: 'Relatórios atribuídos à agência de inteligência do governo do pai orientavam a defesa de Flávio para anular o caso das rachadinhas, revelou a Época.',
+      status: 'O GSI negou a autoria. A PF diz que a “Abin paralela” monitorou auditores do caso. Flávio não foi indiciado.',
+      event: 'abin-paralela-relatorios-abin-defesa-flavio',
+    },
+    {
+      id: 'master', tema: 'Banco Master', cat: 'financas', icon: 'filme', ano: '2026', grande: 'R$ 134 milhões',
+      texto: 'negociados por Flávio com Daniel Vorcaro, dono do Banco Master, hoje preso, para um filme sobre o pai, segundo áudios revelados pelo Intercept.',
+      status: 'Flávio é investigado no STF por corrupção, lavagem e evasão de divisas. Não foi indiciado.',
+      event: 'banco-master-intercept-flavio-dark-horse',
+    },
+    {
+      id: 'patrimonio', tema: 'Patrimônio', cat: 'financas', icon: 'grafico', ano: '2026', grande: 'R$ 1,7 → 8,2 mi',
+      texto: 'é a evolução do patrimônio declarado por Flávio à Justiça Eleitoral entre 2018 e 2026: alta de 211% acima da inflação.',
+      status: 'Declaração pública ao TSE. Não há investigação sobre a evolução patrimonial.',
+      event: 'imoveis-dinheiro-vivo-flavio-patrimonio-tse-2026',
+    },
+  ],
   assuntos: [
     {
       id: 'milicia', tema: 'Milícia',

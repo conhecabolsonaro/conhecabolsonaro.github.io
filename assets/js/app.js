@@ -383,6 +383,16 @@
       imagem: { kicker: 'Antes de votar, conheça', cor: '#5b34d6', grande: `${D.events.length} episódios`, rotulo: `${D.meta.counts.sources.toLocaleString('pt-BR')} links de fontes · dados até ${updated.short}`, chamada: 'Leia a história completa, com as fontes:' },
     }
   }
+  function resumoShare() {
+    const cards = (STORY.resumo || []).filter(c => evById.has(c.event))
+    return {
+      url: LINKS.site + '#resumo', rotulo: 'Compartilhar o resumo',
+      titulo: 'Flávio Bolsonaro em 1 minuto', meta: `${cards.length} pontos que pesam contra ele, com as fontes`,
+      texto: cards.slice(0, 6).map(c => `${c.grande}: ${c.texto}`).join(' '),
+      convite: 'Veja o resumo completo:', arquivo: 'flavio-em-1-minuto',
+      imagem: { kicker: 'O resumo', cor: '#c2341a', grande: `${cards.length} pontos`, rotulo: 'que pesam contra Flávio Bolsonaro', chamada: 'Veja o resumo, com as fontes:' },
+    }
+  }
   function assuntoShare(a) {
     const linhas = a.linhas.filter(l => evById.has(l.event))
     return {
@@ -409,6 +419,7 @@
     if (!b || b.closest('#sheet')) return
     e.preventDefault(); e.stopPropagation()
     if (b.dataset.shEv) { const ev = evById.get(b.dataset.shEv); if (ev) openShare(casoShare(ev)) }
+    else if (b.dataset.shSite === 'resumo') openShare(resumoShare())
     else if ('shSite' in b.dataset) openShare(siteShare(b.dataset.shSite === 'grande'))
     else if (b.dataset.shAssunto) { const a = (STORY.assuntos || []).find(x => x.id === b.dataset.shAssunto); if (a) openShare(assuntoShare(a)) }
     else if (b.dataset.shCap) { const sc = SCENES.find(x => x.ch.id === b.dataset.shCap); const ch = sc ? sc.ch : [...STORY.chapters, STORY.epilogue].find(x => x && x.id === b.dataset.shCap); if (ch) openShare(capShare(ch)) }
@@ -931,7 +942,10 @@
     const o = e.target.closest('[data-open]')
     if (o) {
       if (e.target.closest('a.ep-link')) e.preventDefault()
-      openEvent(o.dataset.open, timelineEl.contains(o) && o.classList.contains('ep') ? filtered : D.events)
+      const list = timelineEl.contains(o) && o.classList.contains('ep') ? filtered
+        : o.closest('#resumoTrack') ? resumoCards().map(c => evById.get(c.event))
+        : o.closest('#faixa') ? D.events.filter(e => isStar(e) && isGrave(e)) : D.events
+      openEvent(o.dataset.open, list)
     }
   })
 
@@ -1020,6 +1034,86 @@
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show')
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200)
+  }
+
+  // ------------------------------------------------------------------ Flávio em 1 minuto (resumo ilustrado)
+  const ICON = {
+    medalha: '<circle cx="12" cy="15" r="5"/><path d="M8.5 3h7l-1.8 7.3M10.3 10.3 8.5 3"/><path d="m12 13 .8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.2z"/>',
+    megafone: '<path d="M4 10v4h3l8 4.5v-13L7 10z"/><path d="M18.5 9a4 4 0 0 1 0 6M7 14l1.5 5h2.5L10 15"/>',
+    pessoas: '<circle cx="8.5" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.6"/><path d="M2.8 20a5.7 5.7 0 0 1 11.4 0M14 15.3a4.6 4.6 0 0 1 7.2 4.7"/>',
+    extrato: '<rect x="4.5" y="3" width="15" height="18" rx="2"/><path d="M8 7.5h8M8 11h8M8 14.5h4"/><path d="M14.5 17.5l2-2.5 1.5 1.5"/>',
+    dinheiro: '<rect x="2.5" y="6.5" width="19" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
+    documento: '<path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M8.5 12.5h7M8.5 16h5"/>',
+    algema: '<circle cx="7" cy="15.5" r="4"/><circle cx="17" cy="15.5" r="4"/><path d="M8.5 11.8 10 6.5h4l1.5 5.3M10 6.5a2 2 0 0 1 4 0"/>',
+    repasse: '<path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5"/>',
+    loja: '<path d="M4 9.5h16L18.5 4h-13z"/><path d="M5.5 9.5V20h13V9.5M10 20v-5.5h4V20"/>',
+    predios: '<path d="M3 21h18M5 21V9l6-4v16M11 21V10.5h8V21"/><path d="M14 13.5h2M14 17h2M7.5 11h1M7.5 14h1M7.5 17h1"/>',
+    casa: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5M10 20v-5h4v5"/>',
+    olho: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    filme: '<rect x="3" y="9.5" width="18" height="11" rx="1.6"/><path d="M3.2 9.5 4.8 4.4 20.5 4l.3 5.5M8.5 4.3 7 9.5M13.5 4.2 12 9.5M18.4 4.1 17 9.5"/>',
+    grafico: '<path d="M3.5 20h17"/><path d="M5 16l4.5-4.5 3.5 3 6.5-7"/><path d="M15.5 7.5h4v4"/>',
+  }
+  const resumoCards = () => (STORY.resumo || []).filter(c => evById.has(c.event))
+  function renderResumo() {
+    const cards = resumoCards()
+    const sec = $('#resumo')
+    if (!sec) return
+    if (!cards.length) { sec.hidden = true; return }
+    // faixa: cada ponto é um caso grave em que Flávio é o protagonista
+    const graves = D.events.filter(e => isStar(e) && isGrave(e))
+    const y0 = Math.min(...graves.map(e => e.year)), y1 = Math.max(+D.meta.updated.slice(0, 4), ...graves.map(e => e.year))
+    const byYear = new Map()
+    graves.forEach(e => { if (!byYear.has(e.year)) byYear.set(e.year, []); byYear.get(e.year).push(e) })
+    $('#faixaN').innerHTML = `<em>${graves.length} casos graves</em> em ${y1 - y0} anos`
+    const faixa = $('#faixa')
+    faixa.style.setProperty('--anos', y1 - y0 + 1)
+    let html = ''
+    for (let y = y0; y <= y1; y++) {
+      const lab = y === y0 || y === y1 || (y - y0) % 5 === 0
+      html += `<div class="fx-ano${lab ? ' lab' : ''}">${(byYear.get(y) || []).map(e => `<button class="fx-dot" type="button" data-open="${esc(e.id)}" title="${esc(fmtDate(e))}: ${esc(e.title)}" aria-label="${esc(fmtDate(e))}: ${esc(e.title)}"></button>`).join('')}<span>${y}</span></div>`
+    }
+    faixa.innerHTML = html
+    // cartões
+    $('#rsN').textContent = cards.length
+    const total = cards.length + 1
+    $('#resumoTrack').innerHTML = cards.map((c, i) => {
+      const len = String(c.grande).length
+      return `<article class="rc" data-open="${esc(c.event)}" style="--rc:${catColor(c.cat)};--rc-ink:${catInk(c.cat)}">
+        <div class="rc-top"><span class="rc-tema">${esc(c.tema)}</span><span class="rc-ano">${esc(c.ano)}</span></div>
+        <span class="rc-ico" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON[c.icon] || ICON.documento}</svg></span>
+        <p class="rc-big${len > 14 ? ' sm' : len > 10 ? ' md' : ''}">${esc(c.grande)}</p>
+        <p class="rc-txt">${esc(c.texto)}</p>
+        <p class="rc-st"><b>Situação:</b> ${esc(c.status)}</p>
+        <div class="rc-pe"><a class="ep-link rc-go" href="#ficha/${esc(c.event)}">Ver a notícia <span aria-hidden="true">→</span></a><button class="ep-share" type="button" data-sh-ev="${esc(c.event)}" aria-label="Compartilhar: ${esc(c.grande)}">${SHARE_SVG}</button></div>
+        <span class="rc-n" aria-hidden="true">${i + 1}/${total}</span>
+      </article>`
+    }).join('') + `<article class="rc rc-end">
+        <p class="rc-big">E tem mais.</p>
+        <p class="rc-txt">São ${D.events.length} episódios, em ordem e com as fontes. Veja a história completa ou mande este resumo para alguém.</p>
+        <div class="rc-end-act"><a class="btn-primary" href="#historia" data-start>Ver a história completa</a><button class="btn-share" type="button" data-sh-site="resumo">${SHARE_SVG}<span>Compartilhar o resumo</span></button></div>
+        <span class="rc-n" aria-hidden="true">${total}/${total}</span>
+      </article>`
+    syncResumoProgress()
+  }
+  const track = $('#resumoTrack')
+  function syncResumoProgress() {
+    if (!track) return
+    const max = track.scrollWidth - track.clientWidth
+    const p = max > 0 ? track.scrollLeft / max : 1
+    $('#rsBar').style.transform = `scaleX(${Math.max(0.06, p).toFixed(3)})`
+    const cards = $$('.rc', track)
+    const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 1
+    const i = Math.min(cards.length, Math.round(track.scrollLeft / step) + 1)
+    $('#rsCount').textContent = `${i} de ${cards.length}`
+    $('#rsPrev').disabled = track.scrollLeft < 4
+    $('#rsNext').disabled = track.scrollLeft > max - 4
+    if (track.scrollLeft > 20) document.body.classList.add('rs-moved')
+  }
+  if (track) {
+    track.addEventListener('scroll', () => requestAnimationFrame(syncResumoProgress), { passive: true })
+    const page = dir => { const c = $('.rc', track); track.scrollBy({ left: dir * (c ? c.offsetWidth + 14 : 320), behavior: reduce ? 'auto' : 'smooth' }) }
+    $('#rsPrev').addEventListener('click', () => page(-1))
+    $('#rsNext').addEventListener('click', () => page(1))
   }
 
   // ------------------------------------------------------------------ Flávio em 4 assuntos (leitura rápida)
@@ -1244,7 +1338,7 @@
       const target = document.getElementById(a.getAttribute('href').slice(1))
       if (target) { e.preventDefault(); window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH() - 8, behavior: reduce ? 'auto' : 'smooth' }) }
     })
-    const ids = ['graves', 'historia', 'pessoas', 'conexoes', 'videos', 'metodo']
+    const ids = ['resumo', 'graves', 'historia', 'pessoas', 'conexoes', 'videos', 'metodo']
     const obs = new IntersectionObserver(en => en.forEach(x => {
       if (x.isIntersecting) $$('.nav-links a').forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + x.target.id))
     }), { rootMargin: '-45% 0px -50% 0px' })
@@ -1290,6 +1384,7 @@
   // ------------------------------------------------------------------ início
   readUrl()
   renderHero()
+  renderResumo()
   constellation = initConstellation()
   renderFilterControls()
   bindFilters()

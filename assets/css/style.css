@@ -1035,3 +1035,108 @@ html.grande .intro-btn { font-size: 30px; }
 @media (max-width: 560px) { .s-share .btn-wa, .s-share .btn-sh { flex: 1 1 100%; } }
 /* o botão fixo "Aa Letra" não tapa o fim da página */
 .pg-body, html.grande body { padding-bottom: 88px; }
+
+/* ==========================================================================
+   Flávio em 1 minuto: faixa dos casos graves + cartões ilustrados
+   ========================================================================== */
+.resumo { max-width: var(--wrap); margin: 0 auto; padding: 8px var(--gutter) 64px; }
+.rs-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 22px; }
+.rs-title { margin: 0; font-size: clamp(42px, 6vw, 84px); font-weight: 400; letter-spacing: -.05em; line-height: .96; }
+.rs-sub { margin: 12px 0 0; font-size: 17px; color: var(--text-2); max-width: 46ch; }
+.rs-nav { display: flex; gap: 8px; }
+.rs-arrow { width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--ink); color: #fff; font-size: 20px; transition: background .2s, opacity .2s; }
+.rs-arrow:hover:not(:disabled) { background: var(--iris); }
+.rs-arrow:disabled { opacity: .2; cursor: default; }
+
+/* faixa: um ponto por caso grave, de 2003 até hoje */
+.faixa-box { margin: 0 0 22px; padding: 18px 20px 12px; border-radius: 22px; background: var(--wash); }
+.faixa-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin: 0 0 14px; }
+.faixa-h b { font-size: clamp(22px, 2.4vw, 30px); font-weight: 400; letter-spacing: -.03em; }
+.faixa-h b em { font-style: normal; color: var(--grave); }
+.faixa-h span { font-size: 14px; color: var(--ash); }
+.faixa { display: grid; grid-template-columns: repeat(var(--anos, 24), minmax(0, 1fr)); align-items: end; gap: 0 3px; }
+.fx-ano { position: relative; display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; min-height: 24px; padding-bottom: 22px; }
+.fx-ano::before { content: ""; position: absolute; left: -2px; right: -2px; bottom: 16px; height: 2px; background: #dcdcd6; }
+.fx-ano.lab::after { content: ""; position: absolute; left: 50%; bottom: 12px; width: 1.5px; height: 6px; background: #b9b9b2; }
+.fx-ano span { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); font-size: 11.5px; font-weight: 600; color: var(--ash); font-variant-numeric: tabular-nums; visibility: hidden; }
+.fx-ano.lab span { visibility: visible; }
+.fx-dot { position: relative; width: 13px; height: 13px; flex: none; border: 0; padding: 0; border-radius: 50%; background: var(--grave); box-shadow: 0 0 0 2px var(--wash); transition: transform .2s var(--ease); }
+.fx-dot::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+.fx-dot:hover, .fx-dot:focus-visible { transform: scale(1.45); }
+
+/* cartões */
+.rs-hint { display: none; margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--iris-ink); }
+.rs-hint span { display: inline-block; animation: nudge 1.4s var(--ease) infinite; }
+@keyframes nudge { 50% { transform: translateX(6px); } }
+body.rs-moved .rs-hint { visibility: hidden; }
+.rs-track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding: 6px 2px 14px; scrollbar-width: none; }
+.rs-track::-webkit-scrollbar { display: none; }
+.rc {
+  --rc-wash: color-mix(in srgb, var(--rc, #8052ff) 9%, #ffffff);
+  position: relative; flex: 0 0 340px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px;
+  min-height: 470px; padding: 22px 22px 18px; border-radius: 26px; background: var(--rc-wash); color: var(--ink); cursor: pointer; overflow: hidden;
+  transition: transform .3s var(--ease), box-shadow .3s;
+}
+.rc:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(10, 10, 10, .08); }
+.rc-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+.rc-tema { color: var(--rc-ink, var(--iris-ink)); }
+.rc-ano { color: var(--ash); font-variant-numeric: tabular-nums; }
+.rc-ico { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 18px; background: #fff; color: var(--rc-ink, var(--iris-ink)); }
+.rc-ico svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.rc-big { margin: 6px 0 0; font-size: 50px; font-weight: 400; letter-spacing: -.05em; line-height: .98; color: var(--rc-ink, var(--ink)); text-wrap: balance; }
+.rc-big.md { font-size: 42px; }
+.rc-big.sm { font-size: 35px; }
+.rc-txt { margin: 0; font-size: 17px; line-height: 1.42; color: var(--ink-2); }
+.rc-st { margin: auto 0 0; padding-top: 12px; border-top: 1px solid rgba(10, 10, 10, .09); font-size: 13.5px; line-height: 1.42; color: var(--text-2); }
+.rc-st b { font-weight: 600; color: var(--ink); }
+.rc-pe { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rc-go { font-size: 15.5px; font-weight: 600; color: var(--rc-ink, var(--ink)); text-decoration: none; }
+.rc-go span { display: inline-block; transition: transform .25s var(--ease); }
+.rc:hover .rc-go span { transform: translateX(4px); }
+.rc .ep-share { background: #fff; box-shadow: none; }
+.rc-n { position: absolute; top: 22px; right: 22px; display: none; }
+.rc-end { --rc-wash: var(--ink); background: var(--ink); color: #fff; justify-content: center; cursor: default; }
+.rc-end:hover { transform: none; box-shadow: none; }
+.rc-end .rc-big { color: #fff; font-size: 54px; }
+.rc-end .rc-txt { color: #d8d8d4; font-size: 18px; }
+.rc-end-act { display: grid; gap: 10px; margin-top: 10px; }
+.rc-end-act .btn-primary { justify-content: center; }
+.rc-end-act .btn-share { justify-content: center; padding: 14px 18px; font-size: 15px; background: #fff; color: var(--ink); }
+.rc-end-act .btn-share:hover { background: var(--iris-wash); color: var(--iris-ink); }
+.rs-prog { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+.rs-prog i { flex: 1; height: 3px; border-radius: 3px; background: var(--ink); transform-origin: left; transform: scaleX(.06); transition: transform .2s; box-shadow: none; }
+.rs-prog { background: linear-gradient(var(--line), var(--line)) 0 50% / calc(100% - 70px) 3px no-repeat; }
+.rs-prog span { flex: none; width: 56px; text-align: right; font-size: 13px; font-weight: 600; color: var(--ash); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  .resumo { padding-left: 0; padding-right: 0; padding-bottom: 44px; }
+  .rs-head, .faixa-box, .rs-hint, .rs-prog { margin-left: var(--gutter); margin-right: var(--gutter); }
+  .rs-nav { display: none; }
+  .rs-hint { display: block; }
+  .faixa-box { padding: 16px 14px 10px; }
+  .faixa { gap: 0 1px; }
+  .fx-dot { width: 10px; height: 10px; }
+  .fx-ano { gap: 3px; }
+  .rs-track { padding-left: var(--gutter); padding-right: var(--gutter); scroll-padding-inline: var(--gutter); gap: 12px; }
+  .rs-track > :last-child { margin-right: var(--gutter); }
+  .rc { flex-basis: 84%; min-height: 450px; padding: 20px 20px 16px; }
+  .rc-big { font-size: 44px; } .rc-big.md { font-size: 38px; } .rc-big.sm { font-size: 32px; }
+  .rc-txt { font-size: 16.5px; }
+}
+@media (prefers-reduced-motion: reduce) { .rs-hint span { animation: none; } }
+
+/* letra grande: os cartões ficam um embaixo do outro, sem arrastar */
+html.grande .rs-track { display: grid; grid-template-columns: minmax(0, 1fr); overflow: visible; gap: 18px; scroll-snap-type: none; }
+html.grande .rs-track > :last-child { margin-right: 0; }
+html.grande .rc { min-height: 0; flex: none; }
+html.grande .rs-nav, html.grande .rs-hint, html.grande .rs-prog { display: none !important; }
+html.grande .rs-sub { font-size: calc(18px * var(--fz)); }
+html.grande .rc-top { font-size: calc(14px * var(--fl)); }
+html.grande .rc-big { font-size: calc(44px * var(--fl)); }
+html.grande .rc-big.md { font-size: calc(38px * var(--fl)); }
+html.grande .rc-big.sm { font-size: calc(32px * var(--fl)); }
+html.grande .rc-txt { font-size: calc(19px * var(--fz)); }
+html.grande .rc-st { font-size: calc(16px * var(--fz)); }
+html.grande .rc-go { font-size: calc(17px * var(--fl)); }
+html.grande .faixa-h span { font-size: calc(15px * var(--fl)); }
+@media (min-width: 761px) { html.grande .rs-track { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

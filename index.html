@@ -38,7 +38,7 @@
       <span>Conheça Bolsonaro</span>
     </a>
     <nav class="nav-links" id="navLinks" aria-label="Seções">
-      <a href="#graves">Resumo</a>
+      <a href="#resumo">Resumo</a>
       <a href="#historia">História</a>
       <a href="#pessoas">Pessoas</a>
       <a href="#conexoes">Conexões</a>
@@ -60,7 +60,7 @@
         <h1 class="display" id="heroTitle"><span class="line"><span>Flávio</span></span><span class="line"><span>Bolsonaro,</span></span><span class="line"><span>episódio por</span></span><span class="line"><span>episódio.</span></span></h1>
         <p class="lede" id="heroLede">Os casos, em ordem e com as fontes.</p>
         <div class="hero-actions">
-          <a class="btn-primary" href="#historia" data-start>Começar <span aria-hidden="true">↓</span></a>
+          <a class="btn-primary" href="#resumo">Ver o resumo <span aria-hidden="true">↓</span></a>
           <button class="btn-share ghost hero-share" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Compartilhar</span></button>
         </div>
       </div>
@@ -70,11 +70,33 @@
       </figure>
     </section>
 
-    <!-- OS CASOS MAIS GRAVES -->
+    <!-- FLÁVIO EM 1 MINUTO: a faixa dos casos graves e os cartões ilustrados -->
+    <section class="resumo" id="resumo" aria-labelledby="rsTitle">
+      <div class="rs-head">
+        <div>
+          <p class="label">O resumo</p>
+          <h2 class="rs-title" id="rsTitle">Flávio em 1 minuto</h2>
+          <p class="rs-sub">O que pesa contra ele, em <span id="rsN">14</span> cartões. Toque em um para ver a notícia completa.</p>
+        </div>
+        <div class="rs-nav" aria-hidden="true">
+          <button class="rs-arrow" type="button" id="rsPrev" tabindex="-1">←</button>
+          <button class="rs-arrow" type="button" id="rsNext" tabindex="-1">→</button>
+        </div>
+      </div>
+      <div class="faixa-box">
+        <p class="faixa-h"><b id="faixaN"></b><span>Cada ponto é um caso grave em que Flávio é o protagonista. Toque para abrir.</span></p>
+        <div class="faixa" id="faixa"></div>
+      </div>
+      <p class="rs-hint" aria-hidden="true">Arraste para o lado <span>→</span></p>
+      <div class="rs-track" id="resumoTrack" aria-label="Cartões do resumo"></div>
+      <div class="rs-prog" aria-hidden="true"><i id="rsBar"></i><span id="rsCount"></span></div>
+    </section>
+
+    <!-- OS 4 ASSUNTOS -->
     <section class="graves" id="graves" aria-labelledby="gravesTitle">
       <div class="graves-head">
-        <h2 class="graves-title" id="gravesTitle">Flávio em 4 assuntos</h2>
-        <p class="graves-sub">Leitura de um minuto. Toque numa linha para abrir a ficha.</p>
+        <h2 class="graves-title" id="gravesTitle">Os 4 assuntos</h2>
+        <p class="graves-sub">Cada assunto em poucas linhas, em ordem. Toque numa linha para abrir a notícia.</p>
       </div>
       <div class="graves-grid" id="gravesGrid"></div>
     </section>
