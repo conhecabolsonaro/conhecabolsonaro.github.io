@@ -76,7 +76,7 @@
     e._q = norm([e.title, e.summary, e.details, e.status, e.defense, names, catLabel(e.category), e.sources.map(s => s.outlet + ' ' + s.title).join(' ')].join(' '))
   })
   // ------------------------------------------------------------------ o mesmo site para todos, com Flávio em destaque
-  const LEDE = 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.'
+  const LEDE = 'A história de Flávio e seus amigos no Rio de Janeiro e no Brasil.'
   const mode = 'geral'
   // a antiga pergunta "você se considera bolsonarista?" saiu; a resposta guardada no aparelho é apagada
   try { localStorage.removeItem('cb-recorte') } catch (err) { /* sem armazenamento */ }
@@ -377,8 +377,8 @@
   function siteShare(grande) {
     return {
       url: LINKS.site + (grande ? '?letra=maior' : ''), rotulo: grande ? 'Compartilhar a versão com letra grande' : 'Compartilhar o site',
-      titulo: 'Flávio Bolsonaro, episódio por episódio', meta: grande ? 'Versão com letra grande' : '',
-      texto: `Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master: ${D.events.length} episódios em ordem, com as fontes.`,
+      titulo: 'Conheça Flávio Bolsonaro, o filho investigado por corrupção', meta: grande ? 'Versão com letra grande' : '',
+      texto: `A história de Flávio e seus amigos no Rio de Janeiro e no Brasil: rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master, em ${D.events.length} episódios com as fontes.`,
       convite: 'Antes de votar, conheça:', arquivo: 'conheca-bolsonaro',
       imagem: { kicker: 'Antes de votar, conheça', cor: '#5b34d6', grande: `${D.events.length} episódios`, rotulo: `${D.meta.counts.sources.toLocaleString('pt-BR')} links de fontes · dados até ${updated.short}`, chamada: 'Leia a história completa, com as fontes:' },
     }

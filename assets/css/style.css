@@ -1140,3 +1140,7 @@ html.grande .rc-st { font-size: calc(16px * var(--fz)); }
 html.grande .rc-go { font-size: calc(17px * var(--fl)); }
 html.grande .faixa-h span { font-size: calc(15px * var(--fl)); }
 @media (min-width: 761px) { html.grande .rs-track { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* capa: "Conheça Flávio Bolsonaro," grande e o complemento em vermelho, menor */
+.hero-t .line-sub { margin-top: .18em; font-size: .5em; line-height: 1.08; letter-spacing: -.035em; color: var(--grave); }
+@media (max-width: 760px) { .hero-t .line-sub { font-size: .56em; } }

@@ -335,7 +335,7 @@
       panel.setAttribute('aria-labelledby', 'lpTitle')
       panel.innerHTML = `<div class="lp-in">
         <div class="lp-top"><p class="lp-h" id="lpTitle">Tamanho da letra</p><button class="icon-btn" type="button" data-lp-close aria-label="Fechar">✕</button></div>
-        <p class="lp-sample">Flávio Bolsonaro, episódio por episódio, com as fontes.</p>
+        <p class="lp-sample">Conheça Flávio Bolsonaro, o filho investigado por corrupção.</p>
         <div class="lp-steps">
           <button class="lp-step" type="button" data-lp-step="-1" aria-label="Diminuir a letra">A<small>−</small></button>
           <p class="lp-now" aria-live="polite"><span id="lpNow"></span></p>
