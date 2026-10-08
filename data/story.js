@@ -131,7 +131,7 @@ window.STORY = {
       event: 'banco-master-intercept-flavio-dark-horse',
       also: ['banco-master-stf-inquerito-dark-horse'],
       hook: 'Maio de 2026. Áudios revelados pelo Intercept mostram Flávio cobrando de Daniel Vorcaro, do Banco Master, dinheiro para um filme sobre o pai.',
-      viz: { type: 'counter', value: 134000000, format: 'brl', caption: 'negociados para o filme, segundo os áudios (US$ 24 milhões, na conversão da imprensa). Flávio confirmou o pedido e diz que era patrocínio privado. Em julho, o STF abriu inquérito e ele passou a ser investigado, sem indiciamento até agora.' },
+      viz: { type: 'counter', value: 134000000, format: 'brl', caption: 'negociados para o filme, segundo os áudios (US$ 24 milhões; o valor em reais é a conversão da imprensa). Flávio confirmou o pedido e diz que era patrocínio privado. Em julho, o STF abriu inquérito e ele passou a ser investigado, sem indiciamento até agora.' },
     },
     {
       id: 'brb', n: 'Capítulo 16', title: 'A volta da mansão',

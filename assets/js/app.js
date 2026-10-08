@@ -170,12 +170,14 @@
     ;(sp.get('temas') || '').split(',').filter(c => D.categories[c]).forEach(c => state.cats.add(c))
     if (sp.get('q')) state.q = sp.get('q')
   }
+  const urlLetra = (() => { const l = new URLSearchParams(location.search).get('letra'); return ['normal', 'grande', 'maior', 'enorme'].includes(l) ? l : '' })()
   function writeUrl() {
     const sp = new URLSearchParams()
     if (state.persons.size) sp.set('pessoas', [...state.persons].join(','))
     if (state.cats.size) sp.set('temas', [...state.cats].join(','))
     if (state.milestones) sp.set('graves', '1')
     if (state.q) sp.set('q', state.q)
+    if (urlLetra) sp.set('letra', urlLetra)
     const qs = sp.toString()
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
   }
@@ -362,7 +364,9 @@
   const SH = window.Compartilhar
   const LINKS = window.LINKS || { site: 'https://conhecabolsonaro.github.io/', caso: {}, assunto: [], capitulo: [] }
   const SHARE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>'
-  const outletsOf = e => [...new Set(e.sources.map(s => String(s.outlet).replace(/\s*\(.*\)\s*/g, '').trim()))]
+  const outletsOf = e => [...new Set(e.sources.map(s => String(s.outlet).replace(/\s*\(.*\)\s*/g, '').replace(/\.(com|net|org)(\.br)?$/i, '').trim()))]
+  const cutTxt = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length <= n ? s : s.slice(0, n - 1).replace(/[\s,;:.]+\S*$/, '') + '…' }
+  const cleanLabel = s => String(s || '').replace(/\s*\([^)]*\)/g, '').replace(/\s+([,.;:])/g, '$1').trim()
   const casoUrl = e => LINKS.caso[e.id] ? `${LINKS.site}caso/${LINKS.caso[e.id]}/` : `${LINKS.site}#ficha/${e.id}`
   function casoShare(e) {
     const g = gravOf(e)
@@ -371,7 +375,7 @@
     const a = e.amounts[0]
     return {
       url: casoUrl(e), titulo: e.title, meta, texto: e.summary, fontes: outletsOf(e).slice(0, 3).join(', '), arquivo: LINKS.caso[e.id] || e.id,
-      imagem: { kicker: meta, ano: e.year, cor: g.g === 'grave' ? '#c2341a' : catInk(e.category), grande: a ? moneyShort('R$ ', a.value_brl) : '', rotulo: a ? a.label.replace(/\s*\(.*?\)\s*/g, ' ').trim() : '' },
+      imagem: { kicker: meta, ano: e.year, cor: g.g === 'grave' ? '#c2341a' : catInk(e.category), grande: a ? moneyShort('R$ ', a.value_brl) : '', rotulo: a ? cutTxt(cleanLabel(a.label), 90) : '' },
     }
   }
   function siteShare(grande) {
@@ -409,7 +413,7 @@
     return {
       url: LINKS.capitulo.includes(ch.id) ? `${LINKS.site}capitulo/${ch.id}/` : `${LINKS.site}#cap-${ch.id}`,
       titulo: big ? `${ch.title}: ${big}` : ch.title, meta: date, texto: ch.hook + (cap ? ' ' + (big ? big + ' ' : '') + cap : ''), arquivo: 'capitulo-' + ch.id,
-      imagem: { kicker: date, ano: e && ch.id !== (STORY.epilogue || {}).id ? e.year : '', cor: '#5b34d6', grande: big, rotulo: cap.length > 90 ? cap.slice(0, 88).replace(/\s+\S*$/, '') + '…' : cap },
+      imagem: { kicker: date, ano: e && ch.id !== (STORY.epilogue || {}).id ? e.year : '', cor: '#5b34d6', grande: big, rotulo: cutTxt(cap, 90) },
     }
   }
   function openShare(d) { if (SH) SH.open(d) }
@@ -431,6 +435,7 @@
 
   // valor final de cada cena, no mesmo formato em que o contador termina
   function moneyShort(prefix, v) {
+    if (v >= 1e9) return `${prefix}${(v / 1e9).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ${v < 2e9 ? 'bilhão' : 'bilhões'}`
     if (v >= 1e6) return `${prefix}${(v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ${v < 2e6 ? 'milhão' : 'milhões'}`
     return prefix + Math.round(v).toLocaleString('pt-BR')
   }
@@ -444,6 +449,7 @@
     if (v.type === 'counter') return fmtCounter(v, v.value, true) + (v.format === 'years' ? ` anos ${v.suffix || ''}` : '')
     if (v.type === 'tiles') return 'R$ ' + (v.count * v.unit).toLocaleString('pt-BR')
     if (v.type === 'grid') return `${v.highlight} de ${v.total}`
+    if (v.type === 'versus') { const pct = x => x.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + '%'; return `${pct(v.a.value)} × ${pct(v.b.value)}` }
     return ''
   }
   function goHTML(ch) {
@@ -1361,9 +1367,11 @@
     intro.showModal()
     showIntroStep('idade')
   }
+  let respondeu = false
   intro.addEventListener('click', e => {
     const b = e.target.closest('[data-idade]')
     if (b) {
+      respondeu = true
       if (b.dataset.idade === 'sim') { Letra.setLevel(2); showIntroStep('tamanho') }
       else { Letra.setLevel(0); intro.close(); window.scrollTo({ top: 0, behavior: 'auto' }) }
       return
@@ -1372,7 +1380,7 @@
     if (nv) { Letra.setLevel(+nv.dataset.nivel); intro.close(); window.scrollTo({ top: 0, behavior: 'auto' }) }
   })
   // Esc sem responder vale como "não"
-  intro.addEventListener('cancel', () => { if (!Letra.chosen()) Letra.set(false) })
+  intro.addEventListener('cancel', () => { if (!respondeu && !Letra.chosen()) Letra.setLevel(0) })
   // letra grande ligada ou desligada: a história é remontada sem (ou com) a trava de rolagem;
   // entre um tamanho grande e outro, só as medidas mudam
   document.addEventListener('letra', () => {
@@ -1395,11 +1403,6 @@
   renderMethod()
   bindNav()
   applyFilters()
-  // quem chega por um link de ficha lê a ficha primeiro; a pergunta vem quando ela fecha
-  if (!Letra.chosen()) {
-    if (location.hash.startsWith('#ficha/')) sheet.addEventListener('close', askIdade, { once: true })
-    else askIdade()
-  }
   // botões de WhatsApp do site (seção "Espalhe")
   if (SH) $$('[data-wa-site]').forEach(a => { a.href = SH.links(siteShare(a.dataset.waSite === 'grande')).whatsapp })
 
@@ -1414,5 +1417,10 @@
   if (!openFromHash() && location.hash.length > 1) {
     const target = document.getElementById(decodeURIComponent(location.hash.slice(1)))
     if (target) requestAnimationFrame(() => target.scrollIntoView())
+  }
+  // quem chega por um link de ficha lê a ficha primeiro; a pergunta vem quando ela fecha
+  if (!Letra.chosen() && !urlLetra) {
+    if (sheet.open) sheet.addEventListener('close', askIdade, { once: true })
+    else askIdade()
   }
 })()

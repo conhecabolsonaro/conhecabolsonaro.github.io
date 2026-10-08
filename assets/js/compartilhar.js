@@ -61,7 +61,7 @@
   }
 
   // ------------------------------------------------------------------ janela
-  let dlg = null, cur = null, objUrl = null, imgFile = null
+  let dlg = null, cur = null, objUrl = null, imgFile = null, tk = 0
   const NETS = [['telegram', 'Telegram'], ['facebook', 'Facebook'], ['x', 'X (Twitter)'], ['threads', 'Threads'], ['bluesky', 'Bluesky']]
 
   function build() {
@@ -80,6 +80,7 @@
     document.body.appendChild(dlg)
     dlg.addEventListener('click', onClick)
     dlg.addEventListener('close', () => {
+      tk++
       const ex = $('#shExtra', dlg); ex.hidden = true; ex.innerHTML = ''
       if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = null }
       imgFile = null
@@ -88,6 +89,7 @@
 
   function open(d) {
     if (!dlg) build()
+    tk++
     cur = d
     const L = links(d)
     $('#shTitle', dlg).textContent = d.rotulo || 'Compartilhar'
@@ -142,13 +144,15 @@
   // ------------------------------------------------------------------ imagem para status e stories (1080 × 1920)
   async function showImage() {
     const ex = $('#shExtra', dlg)
+    const my = ++tk, d = cur
     ex.hidden = false
     ex.innerHTML = '<p class="share-wait">Preparando a imagem…</p>'
     let blob
-    try { blob = await storyBlob(cur) } catch (err) { ex.innerHTML = '<p class="share-wait">Não foi possível gerar a imagem neste aparelho.</p>'; return }
+    try { blob = await storyBlob(d) } catch (err) { if (my === tk) ex.innerHTML = '<p class="share-wait">Não foi possível gerar a imagem neste aparelho.</p>'; return }
+    if (my !== tk || !dlg.open) return
     if (objUrl) URL.revokeObjectURL(objUrl)
     objUrl = URL.createObjectURL(blob)
-    const name = (cur.arquivo || 'conheca-bolsonaro') + '.png'
+    const name = (d.arquivo || 'conheca-bolsonaro') + '.png'
     imgFile = new File([blob], name, { type: 'image/png' })
     const canFiles = !!(navigator.canShare && navigator.canShare({ files: [imgFile] }))
     ex.innerHTML = `<figure class="share-img"><img src="${objUrl}" alt="Prévia da imagem para status e stories"></figure>
@@ -239,7 +243,12 @@
     x.fillStyle = '#0a0a0a'; x.font = `600 58px ${FONT}`; spacing(x, '-1px')
     x.fillText('conhecabolsonaro.github.io', P, footTop + 164)
     const path = pretty(pack(d).url).replace(/^[^/]+/, '')
-    if (path) { x.fillStyle = '#5b34d6'; x.font = `500 30px ${FONT}`; spacing(x, '0px'); x.fillText(clampLines(x, [path], 1, MAXW)[0], P, footTop + 216) }
+    if (path) {
+      let fs = 30
+      x.fillStyle = '#5b34d6'; spacing(x, '0px'); x.font = `500 ${fs}px ${FONT}`
+      while (x.measureText(path).width > MAXW && fs > 18) { fs--; x.font = `500 ${fs}px ${FONT}` }
+      x.fillText(path, P, footTop + 216)
+    }
     return new Promise((ok, no) => c.toBlob(b => (b ? ok(b) : no(new Error('toBlob'))), 'image/png'))
   }
 
@@ -257,15 +266,17 @@
   }
   async function showQR() {
     const ex = $('#shExtra', dlg)
+    const my = ++tk
     const url = pack(cur).url
     ex.hidden = false
     ex.innerHTML = '<p class="share-wait">Gerando o QR code…</p>'
     try {
       await loadQR()
+      if (my !== tk || !dlg.open) return
       const q = window.qrcode(0, 'M'); q.addData(url); q.make()
       ex.innerHTML = `<figure class="share-qr">${q.createSvgTag({ cellSize: 6, margin: 2, scalable: true, alt: 'QR code para ' + pretty(url) })}<figcaption>Aponte a câmera do celular para abrir<br><b>${escH(pretty(url))}</b></figcaption></figure>`
     } catch (err) {
-      ex.innerHTML = '<p class="share-wait">Sem conexão para gerar o QR code agora.</p>'
+      if (my === tk) ex.innerHTML = '<p class="share-wait">Sem conexão para gerar o QR code agora.</p>'
     }
   }
 
@@ -280,18 +291,23 @@
     if (n > 1) root.setAttribute('data-tam', String(n)); else root.removeAttribute('data-tam')
   }
   // o trecho que a pessoa estava lendo continua na tela depois da mudança
+  const ANCHORS = '[id^="ep-"], [id^="cap-"], [id^="ano-"], [id^="assunto-"], #resumo, #graves, #espalhe, #pessoas, #videos, #metodo, #conteudo'
   function anchorNow() {
-    let el = document.elementFromPoint(window.innerWidth / 2, Math.min(window.innerHeight * 0.3, 260))
-    while (el && el !== document.body && !(el.id && /^(ep-|cap-|ano-|assunto-|espalhe|pessoas|videos|metodo|graves|conteudo)/.test(el.id))) el = el.parentElement
-    if (!el || el === document.body) return null
-    return { id: el.id, top: el.getBoundingClientRect().top }
+    if (window.scrollY < 40) return null
+    const line = window.innerHeight * 0.3
+    for (const el of document.querySelectorAll(ANCHORS)) {
+      if (el.closest('dialog') || !el.offsetParent) continue
+      const r = el.getBoundingClientRect()
+      if (r.bottom > line && r.top < window.innerHeight) return { id: el.id, top: r.top }
+    }
+    return null
   }
   function restore(a) {
     if (!a) return
-    requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       const el = document.getElementById(a.id)
       if (el) window.scrollBy(0, el.getBoundingClientRect().top - a.top)
-    })
+    }))
   }
   const Letra = {
     NAMES,
@@ -314,12 +330,13 @@
   function sync() {
     const n = Letra.level
     document.querySelectorAll('[data-letra]').forEach(b => {
-      b.setAttribute('aria-pressed', String(n > 0))
+      b.removeAttribute('aria-pressed'); b.setAttribute('aria-haspopup', 'dialog')
+      b.classList.toggle('letra-ativa', n > 0)
       const t = b.querySelector('[data-letra-label]')
       if (t && b.dataset.letra !== 'fixo') t.textContent = n > 0 ? `Letra: ${NAMES[n]}` : 'Tamanho da letra'
     })
     if (panel) {
-      panel.querySelectorAll('[data-lp-level]').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.lpLevel === n)))
+      panel.querySelectorAll('[data-lp-level]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.lpLevel === n)))
       panel.querySelector('[data-lp-step="-1"]').disabled = n === 0
       panel.querySelector('[data-lp-step="1"]').disabled = n === 3
       panel.querySelector('#lpNow').textContent = NAMES[n]
@@ -341,8 +358,8 @@
           <p class="lp-now" aria-live="polite"><span id="lpNow"></span></p>
           <button class="lp-step big" type="button" data-lp-step="1" aria-label="Aumentar a letra">A<small>+</small></button>
         </div>
-        <div class="lp-opts" role="radiogroup" aria-label="Escolha o tamanho">
-          ${NAMES.map((name, i) => `<button type="button" role="radio" data-lp-level="${i}" aria-checked="false"><span class="lp-a lp-a${i}" aria-hidden="true">Aa</span>${name}</button>`).join('')}
+        <div class="lp-opts" role="group" aria-label="Escolha o tamanho">
+          ${NAMES.map((name, i) => `<button type="button" data-lp-level="${i}" aria-pressed="false"><span class="lp-a lp-a${i}" aria-hidden="true">Aa</span>${name}</button>`).join('')}
         </div>
         <button class="btn-primary lp-ok" type="button" data-lp-close>Pronto</button>
       </div>`
