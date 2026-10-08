@@ -696,3 +696,9 @@ mark { background: rgba(255, 184, 41, .5); color: inherit; border-radius: 3px; p
   .as-linhas span { font-size: 15.5px; }
   .as-pe .as-nomes { display: none; }
 }
+
+/* carrossel do celular: o encaixe respeita a margem lateral (sem isso o 1º cartão cola na borda) */
+@media (max-width: 760px) {
+  .graves-grid { scroll-padding-inline: var(--gutter); }
+  .graves-grid > :last-child { margin-right: var(--gutter); }
+}
