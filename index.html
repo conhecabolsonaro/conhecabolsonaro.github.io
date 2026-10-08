@@ -22,7 +22,7 @@
   <meta name="twitter:description" content="Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master. Antes de votar, conheça os casos, com as fontes.">
   <meta name="twitter:image" content="https://conhecabolsonaro.github.io/og/site.png">
   <meta name="theme-color" content="#ffffff">
-  <script>(function(){var l=null;try{l=new URLSearchParams(location.search).get('letra')}catch(e){}try{if(l==='grande'||l==='normal')localStorage.setItem('cb-letra',l);else l=localStorage.getItem('cb-letra')}catch(e){}if(l==='grande')document.documentElement.classList.add('grande')})()</script>
+  <script>(function(){var V={normal:0,grande:1,maior:2,enorme:3},l=null,n;try{l=new URLSearchParams(location.search).get('letra')}catch(e){}try{if(V.hasOwnProperty(l))localStorage.setItem('cb-letra',l);else l=localStorage.getItem('cb-letra')}catch(e){}n=V[l]||0;if(n){document.documentElement.classList.add('grande');if(n>1)document.documentElement.setAttribute('data-tam',n)}})()</script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 58 54H6z' fill='none' stroke='%238052ff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
       <a href="#metodo">Método</a>
     </nav>
     <div class="nav-tools">
-      <button class="aa-btn" type="button" data-letra aria-pressed="false"><b aria-hidden="true">A+</b><span data-letra-label>Letra grande</span></button>
+      <button class="aa-btn" type="button" data-letra="fixo" aria-pressed="false" aria-label="Tamanho da letra"><b aria-hidden="true">Aa</b><span data-letra-label>Letra</span></button>
       <button class="nav-share" type="button" data-sh-site><svg viewBox="0 0 24 24" aria-hidden="true" class="st"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Compartilhar</span></button>
     </div>
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Abrir menu"><i></i><i></i></button>
@@ -197,7 +197,8 @@
           <dd>O site é o mesmo para todos. Os casos de Flávio vêm em destaque; os do pai, dos irmãos e dos aliados
             aparecem como contexto, recolhidos.</dd>
           <dt>Letra grande</dt>
-          <dd>Quem responde que tem 60 anos ou mais, ou toca no botão <b>A+</b>, vê o site com letra maior, mais contraste e sem animações.
+          <dd>Quem responde que tem 60 anos ou mais escolhe entre três tamanhos de letra (grande, maior e enorme). O botão
+            <b>Aa Letra</b>, fixo no canto da tela, troca o tamanho a qualquer momento. Com letra grande, o site fica com mais contraste e sem animações.
             A história vira leitura corrida, de cima para baixo.</dd>
           <dt>Compartilhar</dt>
           <dd>Cada caso, assunto e capítulo tem o próprio endereço, com título, resumo e imagem de prévia. O botão
@@ -228,9 +229,11 @@
     </div>
     <div class="footer-acts">
       <button type="button" data-sh-site>Compartilhar o site</button>
-      <button type="button" data-letra aria-pressed="false"><span data-letra-label>Letra grande</span></button>
+      <button type="button" data-letra aria-pressed="false"><span data-letra-label>Tamanho da letra</span></button>
     </div>
   </footer>
+
+  <button class="letra-fab" type="button" data-letra="fixo" aria-pressed="false" aria-label="Tamanho da letra"><b aria-hidden="true">Aa</b><span data-letra-label>Letra</span></button>
 
   <button class="progress-pill" id="progressPill" type="button" aria-label="Voltar à busca e aos filtros"><b id="ppYear">—</b><span id="ppCount"></span><i aria-hidden="true">Filtros ↑</i></button>
 
@@ -243,8 +246,18 @@
           <button class="intro-btn" type="button" data-idade="sim">Sim</button>
           <button class="intro-btn" type="button" data-idade="nao">Não</button>
         </div>
-        <p class="intro-note">Com “sim”, o site fica com letra maior e leitura mais simples. Dá para mudar quando quiser no botão A+, no alto da página.
-          A resposta fica neste aparelho e não é enviada a ninguém.</p>
+        <p class="intro-note">Com “sim”, você escolhe o tamanho da letra e o site fica com leitura mais simples. Dá para mudar quando quiser
+          no botão <b>Aa Letra</b>. A resposta fica neste aparelho e não é enviada a ninguém.</p>
+      </div>
+      <div class="intro-step" data-step="tamanho" hidden>
+        <p class="label">Antes de começar</p>
+        <h2 class="intro-q intro-q-sm" id="introQ2">Qual tamanho de letra fica melhor?</h2>
+        <div class="intro-sizes">
+          <button class="intro-size" type="button" data-nivel="1"><span class="lp-a lp-a1" aria-hidden="true">Aa</span><b>Grande</b></button>
+          <button class="intro-size" type="button" data-nivel="2"><span class="lp-a lp-a2" aria-hidden="true">Aa</span><b>Maior</b></button>
+          <button class="intro-size" type="button" data-nivel="3"><span class="lp-a lp-a3" aria-hidden="true">Aa</span><b>Enorme</b></button>
+        </div>
+        <p class="intro-note">Toque no tamanho que você lê sem esforço. Dá para trocar depois no botão <b>Aa Letra</b>.</p>
       </div>
     </div>
   </dialog>

@@ -889,43 +889,57 @@ mark { background: rgba(255, 184, 41, .5); color: inherit; border-radius: 3px; p
 }
 
 /* ==========================================================================
-   Letra grande (pergunta de entrada ou botão A+): leitura simples, sem trava de rolagem
+   Letra grande, em 3 níveis (pergunta de entrada ou botão "Aa Letra")
+   html.grande = grande (×1,1) · data-tam="2" = maior (×1,3) · data-tam="3" = enorme (×1,55)
+   Com letra grande: mais contraste, sem animações e sem trava de rolagem.
    ========================================================================== */
-html.grande { --text-2: #1f1f1f; --ash: #454545; --mist: #666666; --line: #dcdcd8; }
-html.grande body { font-size: 21px; font-weight: 400; line-height: 1.6; }
-html.grande *, html.grande *::before, html.grande *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
-html.grande .hero-visual, html.grande #conexoes, html.grande .nav-links a[href="#conexoes"] { display: none !important; }
+html.grande { --fz: 1.1; --fl: 1.05; --text-2: #1f1f1f; --ash: #454545; --mist: #666666; --line: #dcdcd8; }
+html.grande[data-tam="2"] { --fz: 1.3; --fl: 1.15; }
+html.grande[data-tam="3"] { --fz: 1.55; --fl: 1.28; }
+html.grande body { font-size: calc(21px * var(--fz)); font-weight: 400; line-height: 1.6; overflow-wrap: break-word; }
+html.grande *, html.grande *::before, html.grande *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition: none !important; }
+html.grande .hero-visual, html.grande #conexoes, html.grande .nav-links a[href="#conexoes"], html.grande .progress-pill { display: none !important; }
 html.grande .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-bottom: 24px; }
-html.grande .lede { font-size: 24px !important; color: var(--ink-2); }
-html.grande .label, html.grande .scene-kicker, html.grande .as-tema, html.grande .grave-k, html.grande .pg-crumb, html.grande .share-h,
+html.grande .lede { font-size: calc(24px * var(--fz)) !important; color: var(--ink-2); }
+/* rótulos e etiquetas */
+html.grande .label, html.grande .scene-kicker, html.grande .as-tema, html.grande .grave-k, html.grande .pg-crumb,
 html.grande .pg-rel-t, html.grande .pg-rel small, html.grande .sheet-top .crumb, html.grande .s-facts dt, html.grande .facts dt,
 html.grande .ep-meta, html.grande .s-meta, html.grande .pill, html.grande .crime, html.grande .crime.sm, html.grande .kind,
 html.grande .ep-mini time, html.grande .yr-meta, html.grande .tb-count, html.grande .related small, html.grande .as-linhas b,
 html.grande .pg-linhas b, html.grande .chapter-mini span, html.grande .antes > summary::after, html.grande .s-facts dt small,
-html.grande .progress-pill i, html.grande .p-role, html.grande .video p, html.grande .nav-links a { font-size: 16px !important; letter-spacing: .02em !important; }
-html.grande .ep-title { font-size: 28px !important; line-height: 1.2; }
-html.grande .ep.ep-grave .ep-title { font-size: clamp(30px, 3.4vw, 44px) !important; }
+html.grande .p-role, html.grande .video p, html.grande .nav-links a { font-size: calc(15.5px * var(--fl)) !important; letter-spacing: .02em !important; }
+/* títulos dos cartões */
+html.grande .ep-title { font-size: calc(26px * var(--fz)) !important; line-height: 1.2; }
+html.grande .ep.ep-grave .ep-title { font-size: calc(clamp(30px, 3.4vw, 44px) * var(--fz)) !important; }
+html.grande .as-titulo { font-size: calc(clamp(25px, 2.5vw, 34px) * var(--fl)) !important; }
+/* texto de leitura */
 html.grande .ep-sum, html.grande .s-details, html.grande .s-facts dd, html.grande .facts dd, html.grande .body,
-html.grande .grave-t, html.grande .espalhe-p, html.grande .pg-big-cap, html.grande .pg-mais-p { font-size: 20px !important; line-height: 1.6; color: var(--ink-2); }
-html.grande .s-lead { font-size: 23px !important; line-height: 1.5; }
+html.grande .grave-t, html.grande .espalhe-p, html.grande .pg-big-cap, html.grande .pg-mais-p, html.grande .viz-cap { font-size: calc(20px * var(--fz)) !important; line-height: 1.6; color: var(--ink-2); }
+html.grande .s-lead, html.grande .pg-hook { font-size: calc(22px * var(--fz)) !important; line-height: 1.5; }
+html.grande .scene-hook, html.grande .scene.words-only .scene-hook { font-size: calc(clamp(24px, 2.6vw, 34px) * var(--fz)) !important; line-height: 1.4; }
+/* listas de casos e fontes */
 html.grande .ep-mini .ep-link, html.grande .as-linhas span, html.grande .pg-linhas span, html.grande .sources a,
-html.grande .related span, html.grande .pg-rel span, html.grande .amounts span { font-size: 19px !important; line-height: 1.45; color: var(--ink); }
+html.grande .related span, html.grande .pg-rel span, html.grande .amounts span { font-size: calc(19px * var(--fz)) !important; line-height: 1.45; color: var(--ink); }
 html.grande .sources a { text-decoration: underline; text-underline-offset: 4px; }
 html.grande .sources small, html.grande .vcap, html.grande .s-media figcaption, html.grande .amt, html.grande .ep-foot, html.grande .as-pe,
 html.grande .graves-sub, html.grande .intro-note, html.grande .footer-row, html.grande .pg-foot, html.grande .share-hint, html.grande .share-url,
-html.grande .p-bio, html.grande .p-rel, html.grande .grave-s, html.grande .espalhe-velhos, html.grande .pg-nomes { font-size: 17px !important; }
+html.grande .p-bio, html.grande .p-rel, html.grande .grave-s, html.grande .espalhe-velhos, html.grande .pg-nomes { font-size: calc(17px * var(--fz)) !important; }
+/* controles */
 html.grande .link-ghost, html.grande .chip, html.grande .tb-btn, html.grande .years button, html.grande .ctx > summary, html.grande .antes > summary span,
-html.grande .active-filters, html.grande .active-filters button, html.grande .footer-acts { font-size: 17px !important; }
-html.grande .btn-primary, html.grande .btn-share, html.grande .icon-btn, html.grande .aa-btn, html.grande .nav-share { font-size: 16px !important; }
-html.grande .btn-wa, html.grande .share-wa { font-size: 19px !important; padding: 18px 24px; }
-html.grande .btn-sh { font-size: 17px !important; }
+html.grande .active-filters, html.grande .active-filters button, html.grande .footer-acts { font-size: calc(17px * var(--fl)) !important; }
+html.grande .btn-primary, html.grande .btn-share { font-size: calc(16px * var(--fl)) !important; }
+html.grande .btn-wa, html.grande .share-wa { font-size: calc(19px * var(--fl)) !important; padding: 18px 24px; }
+html.grande .btn-sh { font-size: calc(17px * var(--fl)) !important; }
 html.grande .share-grid > a, html.grande .share-grid > button { font-size: 15px; min-height: 92px; }
-html.grande .share-what { font-size: 23px; }
-html.grande .scene-hook, html.grande .scene.words-only .scene-hook { font-size: clamp(24px, 2.6vw, 34px) !important; line-height: 1.4; }
-html.grande .viz-cap { font-size: 20px !important; }
-html.grande .icon-btn { height: 48px; min-width: 48px; }
+html.grande .share-what { font-size: calc(22px * var(--fl)); }
+html.grande .icon-btn { height: 48px; min-width: 48px; font-size: 16px !important; }
 html.grande .ctx > summary { padding: 10px 16px; color: var(--ink); }
-html.grande .as-linhas button { padding: 14px 0; }
+/* o ano vai para cima do texto: com letra grande, a coluna estreita não cabe */
+html.grande .as-linhas button { grid-template-columns: minmax(0, 1fr) 16px; row-gap: 2px; padding: 14px 0; }
+html.grande .as-linhas b { grid-column: 1 / -1; }
+html.grande .pg-linhas a { grid-template-columns: minmax(0, 1fr) 16px; row-gap: 2px; }
+html.grande .pg-linhas b { grid-column: 1 / -1; }
+html.grande .ep-mini time { min-width: 0; }
 /* cenas sem trava: a história vira leitura corrida */
 html.grande .scene, html.grande .scene.words-only { height: auto !important; }
 html.grande .scene-pin { position: static !important; height: auto !important; padding: 72px 0 24px; overflow: visible; }
@@ -936,13 +950,79 @@ html.grande #gravesGrid > :last-child { margin-right: 0; }
 html.grande .assunto { flex: none; }
 html.grande .as-pe .as-nomes { display: inline; }
 @media (max-width: 760px) {
-  html.grande body { font-size: 20px; }
+  html.grande body { font-size: calc(20px * var(--fz)); }
   html.grande #gravesGrid { padding: 0 var(--gutter); }
-  html.grande .ep-title { font-size: 25px !important; }
-  html.grande .ep.ep-grave .ep-title { font-size: 30px !important; }
-  html.grande .as-linhas button { grid-template-columns: 64px minmax(0, 1fr) 14px; }
+  html.grande .ep-title { font-size: calc(23px * var(--fz)) !important; }
+  html.grande .ep.ep-grave .ep-title { font-size: calc(27px * var(--fz)) !important; }
+  html.grande .as-titulo { font-size: calc(24px * var(--fl)) !important; }
   html.grande .p-bio { display: block; }
+  html.grande .yr-list { padding-left: 24px; }
 }
+
+/* botão fixo "Aa Letra" (canto de baixo) e botão do menu */
+.letra-fab {
+  position: fixed; left: 14px; bottom: max(14px, env(safe-area-inset-bottom, 0px)); z-index: 40;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 54px; padding: 0 20px 0 16px; border: 0; border-radius: 999px;
+  background: var(--ink); color: #fff; box-shadow: 0 10px 30px rgba(10, 10, 10, .22); font-size: 16px; font-weight: 600; letter-spacing: .01em;
+  opacity: 0; visibility: hidden; transform: translateY(16px); transition: opacity .3s, transform .3s var(--ease), visibility 0s linear .3s, background .2s;
+}
+.letra-fab b { font-size: 22px; font-weight: 600; letter-spacing: -.03em; }
+.letra-fab:hover { background: var(--iris-ink); }
+body.past-hero .letra-fab, .letra-fab.is-on, html.grande .letra-fab { opacity: 1; visibility: visible; transform: none; transition: opacity .3s, transform .3s var(--ease), visibility 0s, background .2s; }
+body.in-scene .letra-fab { opacity: 0; visibility: hidden; }
+html.grande .letra-fab { height: 60px; font-size: 18px; padding: 0 22px 0 18px; }
+html.grande .letra-fab b { font-size: 26px; }
+@media (max-width: 760px) {
+  html:not(.grande) body:not(.pg-body) .letra-fab { left: 10px; width: 46px; height: 46px; padding: 0; }
+  html:not(.grande) body:not(.pg-body) .letra-fab span { display: none; }
+  html:not(.grande) body:not(.pg-body) .letra-fab b { font-size: 19px; }
+}
+.aa-btn { height: 44px; }
+.aa-btn b { font-size: 19px; }
+@media (max-width: 560px) {
+  .aa-btn { width: auto; padding: 0 14px; }
+  .aa-btn span { display: inline; }
+}
+
+/* janela "Tamanho da letra" (tamanhos fixos: ela mesma não cresce com a letra) */
+.letra-pop { padding: 0; border: 0; margin: auto; width: min(500px, calc(100% - 24px)); max-height: min(94dvh, 860px); border-radius: var(--r); background: var(--white); color: var(--ink); box-shadow: 0 30px 80px rgba(10, 10, 10, .18); overflow: hidden; }
+.letra-pop::backdrop { background: rgba(10, 10, 10, .32); }
+.letra-pop[open] { animation: shareIn .3s var(--ease); }
+.lp-in { max-height: inherit; overflow-y: auto; overscroll-behavior: contain; padding: 18px 22px 22px; }
+.lp-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lp-h { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--iris-ink); }
+.lp-sample { margin: 14px 0 18px; padding: 16px 18px; border-radius: 16px; background: var(--wash); font-size: 18px; line-height: 1.4; }
+html.grande .lp-sample { font-size: calc(21px * var(--fz)); }
+.lp-steps { display: grid; grid-template-columns: 76px minmax(0, 1fr) 76px; align-items: center; gap: 10px; }
+.lp-step { height: 76px; border: 0; border-radius: 20px; background: var(--ink); color: #fff; font-size: 26px; font-weight: 600; line-height: 1; }
+.lp-step.big { font-size: 36px; }
+.lp-step small { font-size: .62em; margin-left: 2px; }
+.lp-step:hover:not(:disabled) { background: var(--iris-ink); }
+.lp-step:disabled { opacity: .25; cursor: default; }
+.lp-now { margin: 0; text-align: center; font-size: 24px; font-weight: 500; letter-spacing: -.02em; }
+.lp-opts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.lp-opts button { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-height: 100px; padding: 10px 4px 12px; border: 0; border-radius: 16px; background: var(--wash); color: var(--ink); font-size: 14px; font-weight: 600; }
+.lp-opts button:hover { background: var(--iris-wash); color: var(--iris-ink); }
+.lp-opts button[aria-checked="true"] { background: var(--iris); color: #fff; }
+.lp-a { font-weight: 500; line-height: 1; letter-spacing: -.02em; }
+.lp-a0 { font-size: 20px; } .lp-a1 { font-size: 26px; } .lp-a2 { font-size: 33px; } .lp-a3 { font-size: 42px; }
+.lp-ok { width: 100%; justify-content: center; margin-top: 16px; padding: 17px; font-size: 16px !important; }
+@media (max-width: 560px) {
+  .letra-pop { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: var(--r) var(--r) 0 0; }
+  .letra-pop[open] { animation: shareUp .35s var(--ease); }
+  .lp-in { padding: 16px 16px max(18px, env(safe-area-inset-bottom, 0px)); }
+}
+
+/* pergunta de entrada: escolha do tamanho */
+.intro { overflow-y: auto; }
+.intro-inner { height: auto; min-height: 100%; justify-content: safe center; }
+.intro-q.intro-q-sm, html.grande .intro-q.intro-q-sm { font-size: clamp(34px, 5.4vw, 72px); margin-bottom: 32px; }
+.intro-sizes { display: grid; grid-template-columns: repeat(3, minmax(0, 240px)); gap: 12px; width: 100%; }
+.intro-size { display: flex; align-items: center; gap: 18px; padding: 18px 22px; border: 0; border-radius: var(--r); background: var(--white); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); text-align: left; }
+.intro-size b { font-weight: 500; letter-spacing: -.02em; }
+.intro-size:nth-child(1) b { font-size: 22px; } .intro-size:nth-child(2) b { font-size: 27px; } .intro-size:nth-child(3) b { font-size: 33px; }
+.intro-size:hover, .intro-size:focus-visible { background: var(--iris); color: #fff; box-shadow: none; }
+@media (max-width: 760px) { .intro-sizes { grid-template-columns: minmax(0, 1fr); } }
 
 /* perguntas de entrada em dois passos */
 .intro-step { display: flex; flex-direction: column; align-items: flex-start; }
@@ -953,3 +1033,5 @@ html.grande .intro-btn { font-size: 30px; }
 @media (max-width: 760px) { .intro-step { width: 100%; } .intro-step .intro-actions { align-self: stretch; } }
 .intro-q:focus { outline: none; }
 @media (max-width: 560px) { .s-share .btn-wa, .s-share .btn-sh { flex: 1 1 100%; } }
+/* o botão fixo "Aa Letra" não tapa o fim da página */
+.pg-body, html.grande body { padding-bottom: 88px; }

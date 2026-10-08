@@ -269,27 +269,96 @@
     }
   }
 
-  // ------------------------------------------------------------------ letra grande
+  // ------------------------------------------------------------------ tamanho da letra (4 níveis)
+  // 0 normal · 1 grande · 2 maior · 3 enorme. Guardado em localStorage 'cb-letra'; html.grande + data-tam="2|3".
   const KEY = 'cb-letra'
-  const Letra = {
-    get on() { return document.documentElement.classList.contains('grande') },
-    chosen() { try { return localStorage.getItem(KEY) } catch (err) { return null } },
-    set(v) {
-      document.documentElement.classList.toggle('grande', !!v)
-      try { localStorage.setItem(KEY, v ? 'grande' : 'normal') } catch (err) { /* vale só nesta visita */ }
-      sync()
-      document.dispatchEvent(new CustomEvent('letra', { detail: !!v }))
-    },
-    toggle() { this.set(!this.on) },
+  const LEVELS = ['normal', 'grande', 'maior', 'enorme']
+  const NAMES = ['Normal', 'Grande', 'Maior', 'Enorme']
+  const root = document.documentElement
+  function apply(n) {
+    root.classList.toggle('grande', n > 0)
+    if (n > 1) root.setAttribute('data-tam', String(n)); else root.removeAttribute('data-tam')
   }
-  function sync() {
-    document.querySelectorAll('[data-letra]').forEach(b => {
-      b.setAttribute('aria-pressed', String(Letra.on))
-      const t = b.querySelector('[data-letra-label]')
-      if (t) t.textContent = Letra.on ? 'Letra normal' : 'Letra grande'
+  // o trecho que a pessoa estava lendo continua na tela depois da mudança
+  function anchorNow() {
+    let el = document.elementFromPoint(window.innerWidth / 2, Math.min(window.innerHeight * 0.3, 260))
+    while (el && el !== document.body && !(el.id && /^(ep-|cap-|ano-|assunto-|espalhe|pessoas|videos|metodo|graves|conteudo)/.test(el.id))) el = el.parentElement
+    if (!el || el === document.body) return null
+    return { id: el.id, top: el.getBoundingClientRect().top }
+  }
+  function restore(a) {
+    if (!a) return
+    requestAnimationFrame(() => {
+      const el = document.getElementById(a.id)
+      if (el) window.scrollBy(0, el.getBoundingClientRect().top - a.top)
     })
   }
-  document.addEventListener('click', e => { if (e.target.closest('[data-letra]')) Letra.toggle() })
+  const Letra = {
+    NAMES,
+    get level() { return root.classList.contains('grande') ? (+root.getAttribute('data-tam') || 1) : 0 },
+    get on() { return this.level > 0 },
+    chosen() { try { return localStorage.getItem(KEY) } catch (err) { return null } },
+    setLevel(n) {
+      n = Math.max(0, Math.min(3, n | 0))
+      const prev = this.level
+      const a = n !== prev ? anchorNow() : null
+      apply(n)
+      try { localStorage.setItem(KEY, LEVELS[n]) } catch (err) { /* vale só nesta visita */ }
+      sync()
+      document.dispatchEvent(new CustomEvent('letra', { detail: { level: n, prev } }))
+      restore(a)
+    },
+    set(v) { this.setLevel(v ? Math.max(2, this.level) : 0) },
+    open() { openPanel() },
+  }
+  function sync() {
+    const n = Letra.level
+    document.querySelectorAll('[data-letra]').forEach(b => {
+      b.setAttribute('aria-pressed', String(n > 0))
+      const t = b.querySelector('[data-letra-label]')
+      if (t && b.dataset.letra !== 'fixo') t.textContent = n > 0 ? `Letra: ${NAMES[n]}` : 'Tamanho da letra'
+    })
+    if (panel) {
+      panel.querySelectorAll('[data-lp-level]').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.lpLevel === n)))
+      panel.querySelector('[data-lp-step="-1"]').disabled = n === 0
+      panel.querySelector('[data-lp-step="1"]').disabled = n === 3
+      panel.querySelector('#lpNow').textContent = NAMES[n]
+    }
+  }
+
+  // janela "Tamanho da letra"
+  let panel = null
+  function openPanel() {
+    if (!panel) {
+      panel = document.createElement('dialog')
+      panel.className = 'letra-pop'
+      panel.setAttribute('aria-labelledby', 'lpTitle')
+      panel.innerHTML = `<div class="lp-in">
+        <div class="lp-top"><p class="lp-h" id="lpTitle">Tamanho da letra</p><button class="icon-btn" type="button" data-lp-close aria-label="Fechar">✕</button></div>
+        <p class="lp-sample">Flávio Bolsonaro, episódio por episódio, com as fontes.</p>
+        <div class="lp-steps">
+          <button class="lp-step" type="button" data-lp-step="-1" aria-label="Diminuir a letra">A<small>−</small></button>
+          <p class="lp-now" aria-live="polite"><span id="lpNow"></span></p>
+          <button class="lp-step big" type="button" data-lp-step="1" aria-label="Aumentar a letra">A<small>+</small></button>
+        </div>
+        <div class="lp-opts" role="radiogroup" aria-label="Escolha o tamanho">
+          ${NAMES.map((name, i) => `<button type="button" role="radio" data-lp-level="${i}" aria-checked="false"><span class="lp-a lp-a${i}" aria-hidden="true">Aa</span>${name}</button>`).join('')}
+        </div>
+        <button class="btn-primary lp-ok" type="button" data-lp-close>Pronto</button>
+      </div>`
+      document.body.appendChild(panel)
+      panel.addEventListener('click', e => {
+        if (e.target === panel || e.target.closest('[data-lp-close]')) return panel.close()
+        const st = e.target.closest('[data-lp-step]'); if (st && !st.disabled) return Letra.setLevel(Letra.level + Number(st.dataset.lpStep))
+        const lv = e.target.closest('[data-lp-level]'); if (lv) Letra.setLevel(+lv.dataset.lpLevel)
+      })
+    }
+    sync()
+    if (!panel.open) panel.showModal()
+    const cur = panel.querySelector(`[data-lp-level="${Letra.level}"]`)
+    if (cur) cur.focus({ preventScroll: true })
+  }
+  document.addEventListener('click', e => { if (e.target.closest('[data-letra]')) { e.preventDefault(); openPanel() } })
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync); else sync()
 
   window.Compartilhar = { SITE, open, links, pack, storyBlob, icon: brand }

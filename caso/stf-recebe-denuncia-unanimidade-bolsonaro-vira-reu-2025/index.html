@@ -23,7 +23,7 @@
   <meta name="twitter:image" content="https://conhecabolsonaro.github.io/og/caso/stf-recebe-denuncia-unanimidade-bolsonaro-vira-reu-2025.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 58 54H6z' fill='none' stroke='%238052ff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
-  <script>(function(){var l=null;try{l=new URLSearchParams(location.search).get('letra')}catch(e){}try{if(l==='grande'||l==='normal')localStorage.setItem('cb-letra',l);else l=localStorage.getItem('cb-letra')}catch(e){}if(l==='grande')document.documentElement.classList.add('grande')})()</script>
+  <script>(function(){var V={normal:0,grande:1,maior:2,enorme:3},l=null,n;try{l=new URLSearchParams(location.search).get('letra')}catch(e){}try{if(V.hasOwnProperty(l))localStorage.setItem('cb-letra',l);else l=localStorage.getItem('cb-letra')}catch(e){}n=V[l]||0;if(n){document.documentElement.classList.add('grande');if(n>1)document.documentElement.setAttribute('data-tam',n)}})()</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,200..700;1,300..400&display=swap" rel="stylesheet">
@@ -32,8 +32,9 @@
 <body class="pg-body">
   <header class="pg-nav">
     <a class="logo" href="../../" aria-label="Conheça Bolsonaro: página inicial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 19.5H3z"/></svg><span>Conheça Bolsonaro</span></a>
-    <button class="aa-btn" type="button" data-letra aria-pressed="false"><b aria-hidden="true">A+</b><span data-letra-label>Letra grande</span></button>
+    <button class="aa-btn" type="button" data-letra="fixo" aria-pressed="false" aria-label="Tamanho da letra"><b aria-hidden="true">Aa</b><span data-letra-label>Letra</span></button>
   </header>
+  <button class="letra-fab is-on" type="button" data-letra="fixo" aria-pressed="false" aria-label="Tamanho da letra"><b aria-hidden="true">Aa</b><span data-letra-label>Letra</span></button>
   <main class="pg" id="conteudo">
     <article class="pg-art" style="--c:#ff7a00;--ci:#a84f00">
       <p class="pg-crumb"><a href="../../">Conheça Bolsonaro</a><span aria-hidden="true">›</span>Episódio 251 de 388</p>

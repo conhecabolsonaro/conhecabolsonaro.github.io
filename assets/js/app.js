@@ -376,7 +376,7 @@
   }
   function siteShare(grande) {
     return {
-      url: LINKS.site + (grande ? '?letra=grande' : ''), rotulo: grande ? 'Compartilhar a versão com letra grande' : 'Compartilhar o site',
+      url: LINKS.site + (grande ? '?letra=maior' : ''), rotulo: grande ? 'Compartilhar a versão com letra grande' : 'Compartilhar o site',
       titulo: 'Flávio Bolsonaro, episódio por episódio', meta: grande ? 'Versão com letra grande' : '',
       texto: `Rachadinha, dinheiro vivo, milícia, Queiroz e Banco Master: ${D.events.length} episódios em ordem, com as fontes.`,
       convite: 'Antes de votar, conheça:', arquivo: 'conheca-bolsonaro',
@@ -1255,23 +1255,36 @@
 
   // ------------------------------------------------------------------ pergunta de entrada: idade (letra grande)
   const intro = $('#intro')
+  function showIntroStep(name) {
+    $$('.intro-step', intro).forEach(st => { st.hidden = st.dataset.step !== name })
+    const q = $(`.intro-step[data-step="${name}"] .intro-q`, intro)
+    intro.setAttribute('aria-labelledby', q.id)
+    // o foco vai para a pergunta (e não para o "Sim", que pareceria já escolhido)
+    q.setAttribute('tabindex', '-1'); q.focus({ preventScroll: true })
+  }
   function askIdade() {
     if (intro.open) return
     intro.showModal()
-    // o foco vai para a pergunta (e não para o "Sim", que pareceria já escolhido)
-    const q = $('#introQ'); q.setAttribute('tabindex', '-1'); q.focus({ preventScroll: true })
+    showIntroStep('idade')
   }
   intro.addEventListener('click', e => {
-    const b = e.target.closest('[data-idade]'); if (!b) return
-    Letra.set(b.dataset.idade === 'sim')
-    intro.close(); window.scrollTo({ top: 0, behavior: 'auto' })
+    const b = e.target.closest('[data-idade]')
+    if (b) {
+      if (b.dataset.idade === 'sim') { Letra.setLevel(2); showIntroStep('tamanho') }
+      else { Letra.setLevel(0); intro.close(); window.scrollTo({ top: 0, behavior: 'auto' }) }
+      return
+    }
+    const nv = e.target.closest('[data-nivel]')
+    if (nv) { Letra.setLevel(+nv.dataset.nivel); intro.close(); window.scrollTo({ top: 0, behavior: 'auto' }) }
   })
   // Esc sem responder vale como "não"
   intro.addEventListener('cancel', () => { if (!Letra.chosen()) Letra.set(false) })
-  // letra grande ligada ou desligada: a história é remontada sem (ou com) a trava de rolagem
+  // letra grande ligada ou desligada: a história é remontada sem (ou com) a trava de rolagem;
+  // entre um tamanho grande e outro, só as medidas mudam
   document.addEventListener('letra', () => {
-    reduce = reduceMQ || Letra.on
-    applyFilters()
+    const r = reduceMQ || Letra.on
+    if (r !== reduce) { reduce = r; applyFilters() }
+    else { measureToolbar(); cacheOffsets(); onScroll() }
   })
 
   // ------------------------------------------------------------------ início
