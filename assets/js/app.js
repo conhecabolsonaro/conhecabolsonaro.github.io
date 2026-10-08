@@ -76,8 +76,8 @@
   // ------------------------------------------------------------------ recortes (pergunta de entrada)
   // bolsonarista: Flávio e irmãos, sem episódios que acusam o pai · geral: todos. Nos dois, Flávio é a estrela.
   const MODES = {
-    bolsonarista: { label: 'Flávio e irmãos', lede: 'Os casos de Flávio e dos irmãos, em ordem e com as fontes.' },
-    geral: { label: 'Todos, foco em Flávio', lede: 'Os casos de Flávio, do pai, dos irmãos e dos aliados, em ordem e com as fontes.' },
+    bolsonarista: { label: 'Flávio e irmãos', lede: 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.' },
+    geral: { label: 'Todos, foco em Flávio', lede: 'Corrupção, rachadinha, milícia e Queiroz. Os casos de Flávio, com as fontes.' },
   }
   const MODE_KEY = 'cb-recorte'
   const urlMode = new URLSearchParams(location.search).get('recorte')
@@ -90,6 +90,9 @@
   // classificação de cada episódio (research/foco.json); sem ela, uma aproximação pelas pessoas citadas
   const focusOf = e => e.focus || { f: e.people.includes('flavio') ? 'p' : 'a', b: e.people.filter(k => BROTHERS.includes(k)), j: false }
   const isStar = e => focusOf(e).f === 'p'
+  // gravidade (research/gravidade.json): grave = dinheiro público, corrupção, lavagem, rachadinha, crimes graves
+  const gravOf = e => e.grav || { g: e.importance === 3 ? 'grave' : e.importance === 2 ? 'medio' : 'menor', r: '' }
+  const isGrave = e => gravOf(e).g === 'grave'
   const inMode = (e, m = mode) => m !== 'bolsonarista' || ((focusOf(e).f === 'p' || focusOf(e).b.length > 0) && !focusOf(e).j)
   let BASE = D.events.filter(e => inMode(e))
   let viewCount = new Map()
@@ -173,14 +176,14 @@
     const sp = new URLSearchParams(location.search)
     ;(sp.get('pessoas') || '').split(',').filter(k => people.has(k)).forEach(k => state.persons.add(k))
     ;(sp.get('temas') || '').split(',').filter(c => D.categories[c]).forEach(c => state.cats.add(c))
-    if (sp.get('marcos') === '1') state.milestones = true
+    if (sp.get('graves') === '1') state.milestones = true
     if (sp.get('q')) state.q = sp.get('q')
   }
   function writeUrl() {
     const sp = new URLSearchParams()
     if (state.persons.size) sp.set('pessoas', [...state.persons].join(','))
     if (state.cats.size) sp.set('temas', [...state.cats].join(','))
-    if (state.milestones) sp.set('marcos', '1')
+    if (state.milestones) sp.set('graves', '1')
     if (state.q) sp.set('q', state.q)
     if (keepModeInUrl) sp.set('recorte', mode)
     const qs = sp.toString()
@@ -191,7 +194,7 @@
     state.terms = norm(state.q).split(/\s+/).filter(t => t.length > 1)
     setHighlight(state.terms)
     filtered = BASE.filter(e =>
-      (!state.milestones || e.importance === 3) &&
+      (!state.milestones || isGrave(e)) &&
       (!state.cats.size || state.cats.has(e.category) || e.tags.some(t => state.cats.has(t))) &&
       [...state.persons].every(p => e.people.includes(p)) &&
       state.terms.every(t => e._q.includes(t)))
@@ -439,26 +442,29 @@
     </section>`
   }
   function miniHTML(e) {
-    return `<article class="ep ep-mini" id="ep-${esc(e.id)}" data-open="${esc(e.id)}" style="--c:${catColor(e.category)};--ci:${catInk(e.category)}">
+    const g = gravOf(e)
+    return `<article class="ep ep-mini${g.g === 'grave' ? ' is-grave' : ''}${isStar(e) ? ' is-star' : ''}" id="ep-${esc(e.id)}" data-open="${esc(e.id)}" style="--c:${catColor(e.category)};--ci:${catInk(e.category)}">
       <span class="ep-dot" aria-hidden="true"></span>
-      <div class="ep-body"><p class="mini"><time datetime="${esc(e.date)}">${fmtDate(e)}</time><a class="ep-link" href="#ficha/${esc(e.id)}">${hl(e.title)}</a></p></div>
+      <div class="ep-body"><p class="mini"><time datetime="${esc(e.date)}">${fmtDate(e)}</time><a class="ep-link" href="#ficha/${esc(e.id)}">${hl(e.title)}</a>${g.g === 'grave' && g.r ? `<span class="crime sm">${esc(g.r)}</span>` : ''}</p></div>
     </article>`
   }
   function epHTML(e) {
-    if (!isStar(e)) return miniHTML(e)
+    const g = gravOf(e)
+    if (!isStar(e) || g.g === 'menor') return miniHTML(e)
+    const grave = g.g === 'grave'
     const [kl, kc] = kind(e.kind)
     const vid = e.videos[0], img = e.images[0]
-    const showMedia = e.importance === 3 && (vid || img)
+    const showMedia = (grave || e.importance === 3) && (vid || img)
     const media = !showMedia ? '' : vid
       ? `<figure class="ep-media is-video" aria-hidden="true"><img src="https://i.ytimg.com/vi/${esc(vid.youtube_id)}/hqdefault.jpg" alt="" loading="lazy"></figure>`
       : `<figure class="ep-media"><img src="${esc(img.url)}" alt="${esc(img.caption)}" loading="lazy" referrerpolicy="no-referrer"></figure>`
     const amts = e.amounts.slice(0, 2).map(a => `<span class="amt"><b>${fmtBRL(a.value_brl)}</b>${esc(a.label)}</span>`).join('')
     const shown = e.people.slice(0, 4)
     const names = e.people.slice(0, 2).map(displayName).join(', ') + (e.people.length > 2 ? ` +${e.people.length - 2}` : '')
-    return `<article class="ep imp-${e.importance}${showMedia ? ' has-media' : ''}" id="ep-${esc(e.id)}" data-open="${esc(e.id)}" style="--c:${catColor(e.category)};--ci:${catInk(e.category)}">
+    return `<article class="ep imp-${e.importance}${grave ? ' ep-grave' : ''}${showMedia ? ' has-media' : ''}" id="ep-${esc(e.id)}" data-open="${esc(e.id)}" style="--c:${catColor(e.category)};--ci:${catInk(e.category)}">
       <span class="ep-dot" aria-hidden="true"></span>
       <div class="ep-body">
-        <div class="ep-meta"><time datetime="${esc(e.date)}">${fmtDate(e)}</time><span class="pill">${esc(catLabel(e.category))}</span><span class="kind" style="--k:${kc}"><i></i>${kl}</span>${e.importance === 3 ? '<span class="marco">Marco</span>' : ''}</div>
+        <div class="ep-meta"><time datetime="${esc(e.date)}">${fmtDate(e)}</time><span class="pill">${esc(catLabel(e.category))}</span><span class="kind" style="--k:${kc}"><i></i>${kl}</span>${grave ? `<span class="crime">${esc(g.r || 'Caso grave')}</span>` : ''}</div>
         <h4 class="ep-title"><a class="ep-link" href="#ficha/${esc(e.id)}">${hl(e.title)}</a></h4>
         <p class="ep-sum">${hl(e.summary)}</p>
         ${amts ? `<div class="ep-amounts">${amts}</div>` : ''}
@@ -468,15 +474,29 @@
     </article>`
   }
   // um ano pode ser cortado por cenas: o 1º trecho leva a âncora #ano-AAAA, os demais são continuação
+  function listHTML(evs) {
+    const grouping = !isFiltering() && !state.milestones
+    const groupable = e => grouping && !isGrave(e) && (!isStar(e) || gravOf(e).g === 'menor')
+    let out = '', run = []
+    const flushRun = () => {
+      if (run.length >= 2) out += `<details class="ctx"><summary><span>+${run.length} episódios de contexto</span></summary>${run.map(epHTML).join('')}</details>`
+      else out += run.map(epHTML).join('')
+      run = []
+    }
+    for (const e of evs) { if (groupable(e)) run.push(e); else { flushRun(); out += epHTML(e) } }
+    flushRun()
+    return out
+  }
   function yearHTML(year, evs, opts) {
     const eras = erasFor(year)
     const total = opts.total
-    return `<section class="yr${opts.first ? ' first' : ''}${opts.cont ? ' cont' : ''}"${opts.cont ? '' : ` id="ano-${year}"`} data-year="${year}">
+    const compact = !evs.some(e => isStar(e) && gravOf(e).g !== 'menor')
+    return `<section class="yr${opts.first ? ' first' : ''}${opts.cont ? ' cont' : ''}${compact ? ' yr-compact' : ''}"${opts.cont ? '' : ` id="ano-${year}"`} data-year="${year}">
       <div class="yr-side">
         <h3 class="yr-num" aria-label="${year}">${[...String(year)].map(d => `<span class="d" aria-hidden="true"><span>${d}</span></span>`).join('')}</h3>
         <p class="yr-meta"><b>${total} episódio${total === 1 ? '' : 's'}</b>${eras.map(r => `<span>${esc(r)}</span>`).join('')}</p>
       </div>
-      <div class="yr-list"><span class="yr-prog" aria-hidden="true"></span>${evs.map(epHTML).join('')}</div>
+      <div class="yr-list"><span class="yr-prog" aria-hidden="true"></span>${listHTML(evs)}</div>
     </section>`
   }
 
@@ -492,13 +512,26 @@
     const yearTotals = new Map()
     filtered.forEach(e => yearTotals.set(e.year, (yearTotals.get(e.year) || 0) + 1))
     let html = '', block = [], blockYear = null, firstAfterBreak = true, seen = new Set(), si = 0, pendingMini = null
+    const ANTES = 2003
+    let list = filtered
+    if (story) {
+      const antes = filtered.filter(e => e.year < ANTES)
+      if (antes.length) {
+        const byYear = new Map()
+        antes.forEach(e => { if (!byYear.has(e.year)) byYear.set(e.year, []); byYear.get(e.year).push(e) })
+        const inner = [...byYear].map(([y, evs]) => yearHTML(y, evs, { first: false, cont: false, total: evs.length })).join('')
+        html += `<details class="antes" id="antes"><summary><b>Antes de Flávio</b><span>${antes[0].year}–${ANTES - 1} · ${antes.length} episódio${antes.length === 1 ? '' : 's'}</span></summary>${inner}</details>`
+        while (si < SCENES.length && SCENES[si].sort < String(ANTES)) si++
+      }
+      list = filtered.filter(e => e.year >= ANTES)
+    }
 
     const flush = () => {
       if (!block.length) return
       html += yearHTML(blockYear, block, { first: firstAfterBreak, cont: seen.has(blockYear), total: yearTotals.get(blockYear) })
       seen.add(blockYear); block = []; firstAfterBreak = false
     }
-    for (const e of filtered) {
+    for (const e of list) {
       // cenas cuja data já chegou entram antes deste episódio (e antes de outros da mesma data)
       while (si < SCENES.length && SCENES[si].sort <= e.sort) {
         flush()
@@ -542,7 +575,7 @@
       }
       return s
     })
-    yrs = $$('.yr', timelineEl).map(el => ({ el, year: +el.dataset.year, list: $('.yr-list', el), prog: $('.yr-prog', el), items: $$('.ep', el), p: -1, lit: -1, lt: 0 }))
+    yrs = $$('.yr', timelineEl).map(el => ({ el, year: +el.dataset.year, list: $('.yr-list', el), prog: $('.yr-prog', el), items: [], p: -1, lit: -1, lt: 0 }))
     cacheOffsets()
 
     if (reduce || !('IntersectionObserver' in window)) {
@@ -573,7 +606,7 @@
     onScroll()
   }
   function cacheOffsets() {
-    yrs.forEach(y => { y.lt = y.prog.offsetTop; y.items.forEach(it => { it._off = it.offsetTop + (it.classList.contains('ep-mini') ? 18 : isMobile() ? 30 : 34) }) })
+    yrs.forEach(y => { y.items = $$('.ep', y.el).filter(it => !it.closest('details:not([open])')); y.lit = -1; y.lt = y.prog.offsetTop; y.items.forEach(it => { it._off = it.offsetTop + (it.classList.contains('ep-mini') ? 18 : isMobile() ? 30 : 34) }) })
     // cena mais alta que a tela não é presa: anima quando aparece, como no celular
     scenes.forEach(s => {
       const inner = $('.scene-inner', s.el)
@@ -687,6 +720,8 @@
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', () => { measureToolbar(); cacheOffsets(); onScroll() })
   if ('ResizeObserver' in window) new ResizeObserver(() => { cacheOffsets(); onScroll() }).observe(timelineEl)
+  // abrir "+N episódios" ou "Antes de Flávio" muda a lista visível
+  timelineEl.addEventListener('toggle', () => { cacheOffsets(); onScroll() }, true)
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { cacheOffsets(); onScroll() })
   // ao cruzar o limite do celular no meio de uma cena, ela é observada de novo e termina de tocar
   mqMobile.addEventListener('change', () => {
@@ -755,7 +790,7 @@
     const parts = []
     state.persons.forEach(k => parts.push(`<button type="button" data-rm-person="${esc(k)}">${esc(displayName(k))}</button>`))
     state.cats.forEach(c => parts.push(`<button type="button" data-rm-cat="${esc(c)}">${esc(catLabel(c))}</button>`))
-    if (state.milestones) parts.push('<button type="button" data-rm-milestones>Só marcos</button>')
+    if (state.milestones) parts.push('<button type="button" data-rm-milestones>Só os graves</button>')
     if (state.terms.length) parts.push(`<button type="button" data-rm-q>“${esc(state.q)}”</button>`)
     $('#activeFilters').innerHTML = parts.length ? `<span>Mostrando:</span> ${parts.join('')} <button type="button" data-rm-all>Limpar tudo</button>` : ''
   }
@@ -808,7 +843,11 @@
       applyFilters({ scroll: true })
     })
     $('#years').addEventListener('click', e => {
-      const b = e.target.closest('[data-year]'); if (b && !b.disabled) { document.body.classList.remove('tb-summoned'); goTo($('#ano-' + b.dataset.year), 8) }
+      const b = e.target.closest('[data-year]'); if (!b || b.disabled) return
+      document.body.classList.remove('tb-summoned')
+      const t = $('#ano-' + b.dataset.year), d = t && t.closest('details')
+      if (d && !d.open) { d.open = true; cacheOffsets() }
+      goTo(t, 8)
     })
     // o caminho do clique é lido no início: remover um filtro não fecha o painel aberto
     document.addEventListener('click', e => {
@@ -939,6 +978,41 @@
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show')
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200)
+  }
+
+  // ------------------------------------------------------------------ Flávio em 4 assuntos (leitura rápida)
+  function renderAssuntos() {
+    const list = STORY.assuntos || []
+    $('#graves').hidden = !list.length
+    $('#gravesGrid').innerHTML = list.map(a => {
+      const rostos = (a.rostos || []).filter(k => people.has(k))
+      return `<article class="assunto" id="assunto-${esc(a.id)}">
+        <p class="as-tema">${esc(a.tema)}</p>
+        <h3 class="as-titulo">${esc(a.titulo)}</h3>
+        <ol class="as-linhas">${a.linhas.filter(l => evById.has(l.event)).map(l => `<li><button type="button" data-open="${esc(l.event)}"><b>${esc(l.ano)}</b><span>${esc(l.texto)}</span><i aria-hidden="true">→</i></button></li>`).join('')}</ol>
+        <div class="as-pe">
+          ${rostos.length ? `<span class="avs" aria-hidden="true">${rostos.map(k => avatar(k)).join('')}</span><span class="as-nomes">${esc(rostos.map(displayName).join(', '))}</span>` : ''}
+          <button class="link-ghost" type="button" data-assunto="${esc(a.id)}">Ver tudo →</button>
+        </div>
+      </article>`
+    }).join('')
+  }
+  $('#gravesGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-assunto]'); if (!b) return
+    const a = (STORY.assuntos || []).find(x => x.id === b.dataset.assunto); if (!a) return
+    const f = a.filtro || {}
+    state.q = ''; state.milestones = false
+    state.persons = new Set((f.pessoas || []).filter(k => vc(k)))
+    state.cats = new Set(f.temas || [])
+    applyFilters()
+    goTo($('#timeline'))
+  })
+  function goToScene(id) {
+    const s = $('#cap-' + id)
+    if (!s) return false
+    const pinned = !isMobile() && !reduce && !s.classList.contains('is-tall')
+    window.scrollTo({ top: s.getBoundingClientRect().top + window.scrollY + (pinned ? 2 : -navH()), behavior: reduce ? 'auto' : 'smooth' })
+    return true
   }
 
   // ------------------------------------------------------------------ números
@@ -1130,7 +1204,7 @@
       const target = document.getElementById(a.getAttribute('href').slice(1))
       if (target) { e.preventDefault(); window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH() - 8, behavior: reduce ? 'auto' : 'smooth' }) }
     })
-    const ids = ['historia', 'numeros', 'pessoas', 'conexoes', 'videos', 'metodo']
+    const ids = ['graves', 'historia', 'pessoas', 'conexoes', 'videos', 'metodo']
     const obs = new IntersectionObserver(en => en.forEach(x => {
       if (x.isIntersecting) $$('.nav-links a').forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + x.target.id))
     }), { rootMargin: '-45% 0px -50% 0px' })
@@ -1153,7 +1227,7 @@
     ;[...state.persons].forEach(k => { if (!vc(k)) state.persons.delete(k) })
     renderHero()
     if (constellation) constellation.rebuild(BASE)
-    renderFilterControls(); renderNumbers(); renderPeople()
+    renderFilterControls(); renderAssuntos(); renderPeople()
     videoLimit = 9; renderVideos()
     if (graphReady) { graphReady = false; initGraph() }
     applyFilters()
@@ -1177,7 +1251,7 @@
   renderFilterControls()
   bindFilters()
   measureToolbar()
-  renderNumbers()
+  renderAssuntos()
   renderPeople(); bindPeople()
   renderVideos(); bindVideos()
   renderMethod()

@@ -20,7 +20,7 @@
 window.STORY = {
   chapters: [
     {
-      id: 'prologo', views: ['geral'], n: 'Prólogo', title: 'Antes do filho, o pai',
+      id: 'prologo', views: [], n: 'Prólogo', title: 'Antes do filho, o pai',
       event: 'gap-jair-pre-2018-e-alerj-2009-2017-artigo-veja-1986-prisao-disciplinar',
       also: ['gap-jair-pre-2018-e-alerj-2009-2017-eleito-vereador-rio-1988'],
       hook: 'Setembro de 1986. O capitão Jair Bolsonaro é punido com prisão disciplinar por um artigo na Veja. Dois anos depois, já na reserva, é eleito vereador do Rio. Começa ali a carreira política da família.',
@@ -79,7 +79,7 @@ window.STORY = {
       },
     },
     {
-      id: 'oito-de-janeiro', views: ['geral'], n: 'Capítulo 8', title: 'Depois da derrota',
+      id: 'oito-de-janeiro', views: [], n: 'Capítulo 8', title: 'Depois da derrota',
       event: 'jair-golpe-joias-ataques-8-de-janeiro',
       also: ['jair-golpe-joias-minuta-casa-torres'],
       hook: '8 de janeiro de 2023. Apoiadores de Bolsonaro invadem e depredam as sedes dos Três Poderes. Dois dias depois, a Polícia Federal apreende na casa de Anderson Torres, ex-ministro da Justiça, a minuta de um decreto para rever o resultado da eleição.',
@@ -93,7 +93,7 @@ window.STORY = {
       viz: { type: 'words' },
     },
     {
-      id: 'indiciamento', views: ['geral'], n: 'Capítulo 10', title: 'O indiciamento',
+      id: 'indiciamento', views: [], n: 'Capítulo 10', title: 'O indiciamento',
       event: 'jair-golpe-joias-pf-indicia-37',
       hook: 'Novembro de 2024. A Polícia Federal conclui o inquérito sobre a tentativa de golpe depois da eleição de 2022.',
       viz: { type: 'counter', value: 37, format: 'int', caption: 'pessoas indiciadas por golpe de Estado, abolição violenta do Estado Democrático de Direito e organização criminosa, entre elas Jair Bolsonaro.' },
@@ -106,7 +106,7 @@ window.STORY = {
       viz: { type: 'counter', value: 50, format: 'pct', caption: 'de tarifa sobre o Brasil. Em 2026, o STF concluiu que Eduardo articulou a medida para pressionar ministros e o condenou por coação no curso do processo.' },
     },
     {
-      id: 'sentenca', views: ['geral'], n: 'Capítulo 12', title: 'A sentença',
+      id: 'sentenca', views: [], n: 'Capítulo 12', title: 'A sentença',
       event: 'jair-golpe-joias-condenacao-stf',
       hook: '11 de setembro de 2025. Por 4 votos a 1, a Primeira Turma do Supremo condena Jair Bolsonaro por golpe de Estado.',
       viz: { type: 'counter', value: 27, format: 'years', suffix: 'e 3 meses', caption: 'de prisão, em regime inicial fechado.' },
@@ -138,6 +138,59 @@ window.STORY = {
       event: 'mansao-brb-pf-apura-financiamento',
       hook: 'Outubro de 2026. A dois dias da eleição, reportagens informam que a Polícia Federal passou a analisar o empréstimo do BRB que ajudou a pagar a casa do Lago Sul. Não há acusação contra Flávio.',
       viz: { type: 'words' },
+    },
+  ],
+  // Flávio em 4 assuntos: leitura rápida logo depois da capa. Cada linha abre a ficha do episódio indicado.
+  // "filtro" diz o que "Ver tudo" mostra na linha do tempo; "rostos" são as pessoas do assunto.
+  assuntos: [
+    {
+      id: 'milicia', tema: 'Milícia',
+      titulo: 'Defendeu milícias e condecorou um PM depois apontado como chefe miliciano.',
+      rostos: ['adriano', 'raimunda', 'danielle-nobrega'],
+      filtro: { temas: ['milicia'], pessoas: ['flavio'] },
+      linhas: [
+        { ano: '2003', texto: 'Propôs moção de louvor ao PM Adriano da Nóbrega.', event: 'milicia-adriano-mocao-louvor-2003' },
+        { ano: '2005', texto: 'Deu a Medalha Tiradentes a Adriano, então preso acusado de homicídio.', event: 'milicia-adriano-medalha-tiradentes-2005' },
+        { ano: '2007', texto: 'Defendeu as milícias na tribuna da Alerj.', event: 'milicia-adriano-flavio-defende-milicias-2007' },
+        { ano: 'até 2018', texto: 'A mãe e a mulher de Adriano trabalhavam no gabinete dele.', event: 'milicia-adriano-mae-e-ex-mulher-no-gabinete' },
+      ],
+    },
+    {
+      id: 'queiroz', tema: 'Queiroz',
+      titulo: 'R$ 1,2 milhão na conta do assessor.',
+      rostos: ['queiroz', 'wassef'],
+      filtro: { pessoas: ['flavio', 'queiroz'] },
+      linhas: [
+        { ano: '2007–18', texto: 'Foi assessor, motorista e segurança de Flávio na Alerj.', event: 'rachadinha-alerj-origem-composicao-gabinete' },
+        { ano: '2018', texto: 'O Coaf apontou R$ 1,2 milhão em movimentação atípica na conta dele.', event: 'rachadinha-alerj-origem-coaf-queiroz-revelado' },
+        { ano: '2020', texto: 'Foi preso na casa do advogado de Flávio, em Atibaia.', event: 'rachadinha-alerj-processo-queiroz-preso-atibaia' },
+        { ano: '2020', texto: 'Recebeu mais de R$ 400 mil de Adriano da Nóbrega, segundo o MP.', event: 'milicia-adriano-mp-nucleo-executivo-400-mil' },
+        { ano: '2026', texto: 'Esteve em ato da campanha de Flávio.', event: 'queiroz-michelle-2026-campanha-flavio' },
+      ],
+    },
+    {
+      id: 'rachadinha', tema: 'Rachadinha e dinheiro vivo',
+      titulo: 'R$ 6,1 milhões desviados do gabinete, segundo a acusação.',
+      rostos: ['flavio', 'queiroz'],
+      filtro: { temas: ['rachadinha', 'imoveis'], pessoas: ['flavio'] },
+      linhas: [
+        { ano: '2017', texto: '48 depósitos de R$ 2 mil em dinheiro na conta de Flávio.', event: 'rachadinha-alerj-origem-48-depositos' },
+        { ano: '2015–18', texto: '1.512 depósitos em espécie na loja de chocolates dele.', event: 'imoveis-dinheiro-vivo-loja-chocolates-1512-depositos' },
+        { ano: '2020', texto: 'Denunciado por peculato, lavagem e organização criminosa.', event: 'rachadinha-alerj-processo-denuncia-mprj' },
+        { ano: '2022', texto: 'A denúncia foi rejeitada depois que STJ e STF anularam as provas.', event: 'rachadinha-alerj-processo-tjrj-rejeita-denuncia' },
+      ],
+    },
+    {
+      id: 'master', tema: 'Banco Master e BRB',
+      titulo: 'US$ 24 milhões negociados com um banqueiro hoje preso.',
+      rostos: ['vorcaro', 'paulo-henrique-costa'],
+      filtro: { temas: ['financas'], pessoas: ['flavio'] },
+      linhas: [
+        { ano: '2021', texto: 'Comprou mansão de R$ 5,97 mi com R$ 3,1 mi do banco público BRB.', event: 'mansao-brb-compra-mansao-lago-sul' },
+        { ano: '2026', texto: 'Áudios: negociou US$ 24 milhões com Daniel Vorcaro para um filme sobre o pai.', event: 'banco-master-intercept-flavio-dark-horse' },
+        { ano: '2026', texto: 'Passou a ser investigado no STF por corrupção e lavagem.', event: 'banco-master-stf-inquerito-dark-horse' },
+        { ano: '2026', texto: 'A PF apura o empréstimo; o ex-presidente do BRB está preso.', event: 'mansao-brb-pf-apura-financiamento' },
+      ],
     },
   ],
   epilogue: {

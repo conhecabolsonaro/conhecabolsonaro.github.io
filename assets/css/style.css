@@ -602,3 +602,97 @@ mark { background: rgba(255, 184, 41, .5); color: inherit; border-radius: 3px; p
 @media (max-width: 420px) {
   .logo span { display: none; }
 }
+
+/* ---------- os casos mais graves (logo depois da capa) ---------- */
+:root { --grave: #c2341a; --grave-wash: #fdeeea; }
+.graves { max-width: var(--wrap); margin: 0 auto; padding: 8px var(--gutter) 56px; }
+.graves-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; margin-bottom: 26px; }
+.graves-title { margin: 0; font-size: clamp(34px, 4.4vw, 56px); font-weight: 400; letter-spacing: -.045em; line-height: 1; }
+.graves-sub { margin: 0; font-size: 14px; color: var(--ash); }
+.graves-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 36px; }
+.grave {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; text-align: left; background: none; border: 0;
+  padding: 18px 0 0; box-shadow: inset 0 2px 0 var(--ink); cursor: pointer; transition: box-shadow .3s;
+}
+.grave:hover, .grave:focus-visible { box-shadow: inset 0 2px 0 var(--grave); }
+.grave-k { font-size: 12.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--grave); }
+.grave-v { font-size: clamp(44px, 5vw, 70px); font-weight: 400; letter-spacing: -.055em; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grave-v span { background: linear-gradient(transparent 70%, var(--saffron) 70%); padding: 0 .04em; }
+.grave-t { font-size: 17px; line-height: 1.4; color: var(--ink-2); max-width: 34ch; }
+.grave-tag { margin-top: 2px; font-size: 12px; font-weight: 600; letter-spacing: .03em; color: var(--grave); background: var(--grave-wash); border-radius: 999px; padding: 4px 10px; }
+.grave-s { font-size: 13px; color: var(--ash); max-width: 36ch; }
+
+/* ---------- casos graves na linha do tempo ---------- */
+.crime { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; background: var(--grave-wash); color: var(--grave); font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.crime::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--grave); }
+.crime.sm { padding: 2px 8px; font-size: 10.5px; }
+.ep.ep-grave .ep-title { font-size: clamp(32px, 3.4vw, 46px); letter-spacing: -.04em; line-height: 1.06; }
+.ep.ep-grave .ep-sum { color: var(--ink-2); }
+.ep.ep-grave .ep-dot { left: -49px; top: 27px; width: 18px; height: 18px; border-color: var(--grave); }
+.ep.ep-grave.lit .ep-dot { background: var(--grave); border-color: var(--grave); box-shadow: 0 0 0 6px var(--grave-wash); }
+.ep.ep-grave .amt b { font-size: 26px; }
+.ep-mini.is-star .ep-link { color: var(--ink); }
+.ep-mini.is-grave .ep-dot { border-color: var(--grave); }
+
+/* ---------- contexto recolhido: "+N episódios" e "Antes de Flávio" ---------- */
+.ctx { margin: 4px 0 8px; }
+.ctx > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; font-weight: 500; color: var(--ash); transition: color .2s, box-shadow .2s; }
+.ctx > summary::-webkit-details-marker, .antes > summary::-webkit-details-marker { display: none; }
+.ctx > summary::after { content: "+"; font-weight: 600; }
+.ctx[open] > summary::after { content: "−"; }
+.ctx > summary:hover { color: var(--iris-ink); box-shadow: inset 0 0 0 1px #d9cdff; }
+.antes { max-width: var(--wrap); margin: 0 auto; padding: 8px var(--gutter) 0; }
+.antes > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; padding: 18px 0; box-shadow: inset 0 -1px 0 var(--line); }
+.antes > summary b { font-size: clamp(22px, 2.4vw, 30px); font-weight: 400; letter-spacing: -.03em; }
+.antes > summary span { font-size: 13.5px; color: var(--ash); }
+.antes > summary::after { content: "Abrir +"; margin-left: auto; font-size: 12.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ash); }
+.antes[open] > summary::after { content: "Fechar −"; }
+.antes .yr { padding-left: 0; padding-right: 0; }
+
+/* ano sem episódio de destaque de Flávio: cabeçalho pequeno */
+.yr.yr-compact { padding-top: 28px; }
+.yr.yr-compact .yr-num { font-size: clamp(28px, 2.6vw, 36px); letter-spacing: -.03em; }
+.yr.yr-compact .yr-meta { margin-top: 6px; }
+
+@media (max-width: 1100px) {
+  .graves-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  /* celular: os casos graves passam de lado, sem alongar a página */
+  .graves { padding-bottom: 32px; padding-left: 0; padding-right: 0; }
+  .graves-head { padding: 0 var(--gutter); margin-bottom: 18px; }
+  .graves-grid { display: flex; grid-template-columns: none; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 var(--gutter) 8px; scrollbar-width: none; }
+  .graves-grid::-webkit-scrollbar { display: none; }
+  .grave { flex: 0 0 82%; scroll-snap-align: start; }
+  .grave-v { font-size: 46px; }
+  .ep.ep-grave .ep-title { font-size: 28px; }
+  .ep.ep-grave .ep-dot { left: -32px; top: 26px; width: 15px; height: 15px; }
+  .yr.yr-compact .yr-num { font-size: 30px; }
+}
+
+/* ---------- Flávio em 4 assuntos ---------- */
+#gravesGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 48px; }
+.assunto { min-width: 0; display: flex; flex-direction: column; padding-top: 18px; box-shadow: inset 0 2px 0 var(--ink); }
+.as-tema { margin: 0 0 10px; font-size: 12.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--grave); }
+.as-titulo { margin: 0 0 18px; font-size: clamp(25px, 2.5vw, 34px); font-weight: 400; letter-spacing: -.035em; line-height: 1.12; text-wrap: balance; }
+.as-linhas { list-style: none; margin: 0 0 18px; padding: 0; display: grid; }
+.as-linhas button {
+  width: 100%; display: grid; grid-template-columns: 74px minmax(0, 1fr) 18px; align-items: baseline; gap: 10px;
+  text-align: left; background: none; border: 0; padding: 11px 0; box-shadow: inset 0 -1px 0 var(--line); transition: color .2s;
+}
+.as-linhas b { font-size: 12.5px; font-weight: 600; letter-spacing: .03em; color: var(--ash); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.as-linhas span { font-size: 16.5px; line-height: 1.4; color: var(--ink-2); }
+.as-linhas i { font-style: normal; color: var(--mist); transition: transform .25s var(--ease), color .2s; }
+.as-linhas button:hover span, .as-linhas button:focus-visible span { color: var(--iris); }
+.as-linhas button:hover i { color: var(--iris); transform: translateX(3px); }
+.as-pe { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13.5px; color: var(--ash); }
+.as-pe .link-ghost { margin-left: auto; font-size: 14px; }
+@media (max-width: 1100px) { #gravesGrid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  #gravesGrid { display: flex; gap: 18px; }
+  .assunto { flex: 0 0 86%; scroll-snap-align: start; }
+  .as-titulo { font-size: 24px; }
+  .as-linhas button { grid-template-columns: 62px minmax(0, 1fr) 14px; padding: 10px 0; }
+  .as-linhas span { font-size: 15.5px; }
+  .as-pe .as-nomes { display: none; }
+}

@@ -23,8 +23,8 @@
       <span>Conheça Bolsonaro</span>
     </a>
     <nav class="nav-links" id="navLinks" aria-label="Seções">
+      <a href="#graves">Resumo</a>
       <a href="#historia">História</a>
-      <a href="#numeros">Números</a>
       <a href="#pessoas">Pessoas</a>
       <a href="#conexoes">Conexões</a>
       <a href="#videos">Vídeos</a>
@@ -52,6 +52,15 @@
       </figure>
     </section>
 
+    <!-- OS CASOS MAIS GRAVES -->
+    <section class="graves" id="graves" aria-labelledby="gravesTitle">
+      <div class="graves-head">
+        <h2 class="graves-title" id="gravesTitle">Flávio em 4 assuntos</h2>
+        <p class="graves-sub">Leitura de um minuto. Toque numa linha para abrir a ficha.</p>
+      </div>
+      <div class="graves-grid" id="gravesGrid"></div>
+    </section>
+
     <!-- HISTÓRIA -->
     <section class="story" id="historia" aria-label="Linha do tempo">
       <div class="toolbar" id="toolbar">
@@ -63,7 +72,7 @@
           <div class="tb-group">
             <button class="tb-btn" id="peopleBtn" type="button" aria-expanded="false" aria-controls="peoplePop">Pessoas <span class="tb-n" id="peopleN"></span></button>
             <button class="tb-btn" id="themesBtn" type="button" aria-expanded="false" aria-controls="themesPop">Temas <span class="tb-n" id="themesN"></span></button>
-            <button class="tb-btn tb-toggle" id="onlyMilestones" type="button" aria-pressed="false">Só marcos</button>
+            <button class="tb-btn tb-toggle" id="onlyMilestones" type="button" aria-pressed="false">Só os graves</button>
           </div>
           <p class="tb-count" id="resultCount" aria-live="polite"></p>
         </div>
@@ -84,18 +93,6 @@
       <div class="timeline" id="timeline">
         <p class="loading">Carregando a história…</p>
       </div>
-    </section>
-
-    <!-- NÚMEROS -->
-    <section class="block" id="numeros" aria-labelledby="numTitle">
-      <div class="section-head">
-        <h2 class="heading-lg" id="numTitle">Os números</h2>
-        <div class="section-aside">
-          <p class="label">02 · Valores citados</p>
-          <p class="body">Valores que aparecem em investigações, denúncias e reportagens. Cada um abre a ficha de origem.</p>
-        </div>
-      </div>
-      <div class="numbers" id="numbersGrid"></div>
     </section>
 
     <!-- PESSOAS -->
