@@ -417,8 +417,11 @@
     }
   }
   function openShare(d) { if (SH) SH.open(d) }
+  let rsDragEnd = 0
+  const justDragged = () => performance.now() - rsDragEnd < 120
   // botões de compartilhar fora da ficha (cartões, assuntos, cenas, menu, capa, rodapé)
   document.addEventListener('click', e => {
+    if (justDragged() && e.target.closest('#resumoTrack')) { e.preventDefault(); e.stopPropagation(); return }
     const b = e.target.closest('[data-sh-ev], [data-sh-site], [data-sh-assunto], [data-sh-cap]')
     if (!b || b.closest('#sheet')) return
     e.preventDefault(); e.stopPropagation()
@@ -946,6 +949,7 @@
     const yt = e.target.closest('.yt button'); if (yt) { e.stopPropagation(); playYt(yt.closest('.yt')); return }
     if (e.target.closest('#sheet')) return
     const o = e.target.closest('[data-open]')
+    if (o && justDragged() && o.closest('#resumoTrack')) { e.preventDefault(); return }
     if (o) {
       if (e.target.closest('a.ep-link')) e.preventDefault()
       const list = timelineEl.contains(o) && o.classList.contains('ep') ? filtered
@@ -1113,13 +1117,43 @@
     $('#rsCount').textContent = `${i} de ${cards.length}`
     $('#rsPrev').disabled = track.scrollLeft < 4
     $('#rsNext').disabled = track.scrollLeft > max - 4
+    $('#rsWrap').classList.toggle('at-start', track.scrollLeft < 4)
+    $('#rsWrap').classList.toggle('at-end', track.scrollLeft > max - 4)
     if (track.scrollLeft > 20) document.body.classList.add('rs-moved')
   }
   if (track) {
     track.addEventListener('scroll', () => requestAnimationFrame(syncResumoProgress), { passive: true })
-    const page = dir => { const c = $('.rc', track); track.scrollBy({ left: dir * (c ? c.offsetWidth + 14 : 320), behavior: reduce ? 'auto' : 'smooth' }) }
+    const step = () => { const cs = $$('.rc', track); return cs.length > 1 ? cs[1].offsetLeft - cs[0].offsetLeft : 340 }
+    const page = dir => track.scrollTo({ left: (Math.round(track.scrollLeft / step()) + dir) * step(), behavior: reduce ? 'auto' : 'smooth' })
     $('#rsPrev').addEventListener('click', () => page(-1))
     $('#rsNext').addEventListener('click', () => page(1))
+    track.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); page(e.key === 'ArrowRight' ? 1 : -1) }
+    })
+    // computador: arrastar com o mouse; ao soltar, encaixa no cartão mais próximo
+    let drag = null
+    track.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return
+      drag = { x: e.clientX, left: track.scrollLeft, moved: false }
+    })
+    window.addEventListener('pointermove', e => {
+      if (!drag) return
+      const dx = e.clientX - drag.x
+      if (!drag.moved && Math.abs(dx) > 6) { drag.moved = true; track.classList.add('is-drag') }
+      if (drag.moved) track.scrollLeft = drag.left - dx
+    })
+    window.addEventListener('pointerup', () => {
+      if (!drag) return
+      const d = drag; drag = null
+      if (!d.moved) return
+      rsDragEnd = performance.now()
+      const s = step(), dir = track.scrollLeft - d.left
+      // um arrasto curto já passa um cartão no sentido do movimento
+      const target = Math.abs(dir) > s * 0.15 ? (dir > 0 ? Math.ceil(track.scrollLeft / s) : Math.floor(track.scrollLeft / s)) : Math.round(track.scrollLeft / s)
+      track.scrollTo({ left: target * s, behavior: reduce ? 'auto' : 'smooth' })
+      setTimeout(() => track.classList.remove('is-drag'), reduce ? 0 : 450)
+    })
+    track.addEventListener('dragstart', e => e.preventDefault())
   }
 
   // ------------------------------------------------------------------ Flávio em 4 assuntos (leitura rápida)
