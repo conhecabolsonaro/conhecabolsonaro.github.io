@@ -6,6 +6,10 @@
   O número e a afirmação principal saem do episódio em "event"; as demais afirmações, dos episódios em "also".
   A cena oferece todos para abrir.
 
+  Recortes: "views" lista em quais recortes a cena aparece (padrão: todos). "bolso" troca campos da cena
+  no recorte de quem se declara bolsonarista, que mostra Flávio e os irmãos sem acusar o pai.
+  A numeração dos capítulos é feita na hora, conforme o recorte.
+
   viz.type:
     words    só o texto, revelado palavra por palavra
     counter  número que sobe até "value" (format: brl | usd | int | years | pct)
@@ -16,7 +20,7 @@
 window.STORY = {
   chapters: [
     {
-      id: 'prologo', n: 'Prólogo', title: 'Antes do filho, o pai',
+      id: 'prologo', views: ['geral'], n: 'Prólogo', title: 'Antes do filho, o pai',
       event: 'gap-jair-pre-2018-e-alerj-2009-2017-artigo-veja-1986-prisao-disciplinar',
       also: ['gap-jair-pre-2018-e-alerj-2009-2017-eleito-vereador-rio-1988'],
       hook: 'Setembro de 1986. O capitão Jair Bolsonaro é punido com prisão disciplinar por um artigo na Veja. Dois anos depois, já na reserva, é eleito vereador do Rio. Começa ali a carreira política da família.',
@@ -35,6 +39,7 @@ window.STORY = {
       also: ['queiroz-michelle-stf-arquiva-cheques'],
       hook: 'Dezembro de 2018. Flávio acaba de ser eleito senador quando o Estadão revela um relatório do Coaf sobre a conta de seu ex-assessor na Alerj, Fabrício Queiroz.',
       viz: { type: 'counter', value: 1200000, format: 'brl', caption: 'em movimentação considerada atípica em um ano (jan/2016–jan/2017). Entre os valores, um cheque de R$ 24 mil para Michelle Bolsonaro, que Jair atribuiu à devolução de um empréstimo. Em 2021, o STF arquivou um pedido para investigá-lo pelos cheques.' },
+      bolso: { viz: { type: 'counter', value: 1200000, format: 'brl', caption: 'em movimentação considerada atípica em um ano (jan/2016–jan/2017), segundo o Coaf.' } },
     },
     {
       id: 'depositos', n: 'Capítulo 3', title: '48 depósitos',
@@ -67,9 +72,14 @@ window.STORY = {
       also: ['imoveis-dinheiro-vivo-bolsonaro-qual-o-problema'],
       hook: 'Agosto de 2022, em plena campanha. O UOL levanta os imóveis negociados pela família Bolsonaro desde os anos 1990 e confere, um a um, como foram pagos.',
       viz: { type: 'grid', total: 107, highlight: 51, caption: 'imóveis da família foram pagos total ou parcialmente em dinheiro vivo: R$ 13,5 milhões na época, R$ 25,6 milhões em valores corrigidos.', quote: '“Qual o problema?”, respondeu Jair Bolsonaro.' },
+      bolso: {
+        also: [],
+        hook: 'Agosto de 2022, em plena campanha. O UOL levanta os imóveis negociados pela família Bolsonaro desde os anos 1990 e confere, um a um, como foram pagos. Só a parte dos filhos Flávio, Carlos e Eduardo chega a:',
+        viz: { type: 'counter', value: 15700000, format: 'brl', caption: 'pagos em dinheiro vivo por imóveis, em valores corrigidos pela inflação, segundo o levantamento do UOL.' },
+      },
     },
     {
-      id: 'oito-de-janeiro', n: 'Capítulo 8', title: 'Depois da derrota',
+      id: 'oito-de-janeiro', views: ['geral'], n: 'Capítulo 8', title: 'Depois da derrota',
       event: 'jair-golpe-joias-ataques-8-de-janeiro',
       also: ['jair-golpe-joias-minuta-casa-torres'],
       hook: '8 de janeiro de 2023. Apoiadores de Bolsonaro invadem e depredam as sedes dos Três Poderes. Dois dias depois, a Polícia Federal apreende na casa de Anderson Torres, ex-ministro da Justiça, a minuta de um decreto para rever o resultado da eleição.',
@@ -83,7 +93,7 @@ window.STORY = {
       viz: { type: 'words' },
     },
     {
-      id: 'indiciamento', n: 'Capítulo 10', title: 'O indiciamento',
+      id: 'indiciamento', views: ['geral'], n: 'Capítulo 10', title: 'O indiciamento',
       event: 'jair-golpe-joias-pf-indicia-37',
       hook: 'Novembro de 2024. A Polícia Federal conclui o inquérito sobre a tentativa de golpe depois da eleição de 2022.',
       viz: { type: 'counter', value: 37, format: 'int', caption: 'pessoas indiciadas por golpe de Estado, abolição violenta do Estado Democrático de Direito e organização criminosa, entre elas Jair Bolsonaro.' },
@@ -96,13 +106,13 @@ window.STORY = {
       viz: { type: 'counter', value: 50, format: 'pct', caption: 'de tarifa sobre o Brasil. Em 2026, o STF concluiu que Eduardo articulou a medida para pressionar ministros e o condenou por coação no curso do processo.' },
     },
     {
-      id: 'sentenca', n: 'Capítulo 12', title: 'A sentença',
+      id: 'sentenca', views: ['geral'], n: 'Capítulo 12', title: 'A sentença',
       event: 'jair-golpe-joias-condenacao-stf',
-      hook: '11 de setembro de 2025. Por 4 votos a 1, a Primeira Turma do Supremo condena Jair Bolsonaro pela trama golpista.',
+      hook: '11 de setembro de 2025. Por 4 votos a 1, a Primeira Turma do Supremo condena Jair Bolsonaro por golpe de Estado.',
       viz: { type: 'counter', value: 27, format: 'years', suffix: 'e 3 meses', caption: 'de prisão, em regime inicial fechado.' },
     },
     {
-      id: 'tornozeleira', n: 'Capítulo 13', title: 'A tornozeleira',
+      id: 'tornozeleira', views: ['geral'], n: 'Capítulo 13', title: 'A tornozeleira',
       event: 'flavio-senado-2026-vigilia-e-prisao-preventiva-do-pai',
       also: ['jair-golpe-joias-prisao-preventiva-tornozeleira'],
       hook: 'Novembro de 2025. Flávio convoca uma vigília de oração perto da casa do pai. Na madrugada seguinte, a tornozeleira de Jair registra uma violação: ele admite ter usado um ferro de solda no aparelho. Horas depois, é preso.',
@@ -114,6 +124,7 @@ window.STORY = {
       also: ['flavio-senado-2026-preco-da-candidatura'],
       hook: '5 de dezembro de 2025. Preso, Jair escolhe Flávio como candidato do PL à Presidência. Dois dias depois, o filho diz que tem “um preço” para desistir. À noite, explica qual: o pai livre e nas urnas.',
       viz: { type: 'words' },
+      bolso: { hook: '5 de dezembro de 2025. Jair escolhe Flávio como candidato do PL à Presidência. Dois dias depois, Flávio diz que tem “um preço” para desistir da candidatura. À noite, explica qual: o pai livre e nas urnas.' },
     },
     {
       id: 'dark-horse', n: 'Capítulo 15', title: 'Dark Horse',

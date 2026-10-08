@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Conheça Bolsonaro — Flávio, episódio por episódio</title>
-  <meta name="description" content="A história de Flávio Bolsonaro, do pai, dos irmãos e dos aliados contada em capítulos: rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master e a trama golpista. Com fontes.">
+  <meta name="description" content="A história de Flávio Bolsonaro, do pai, dos irmãos e dos aliados contada em capítulos: rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master e o golpe de Estado. Com fontes.">
   <meta property="og:title" content="Conheça Bolsonaro — Flávio, episódio por episódio">
   <meta property="og:description" content="386 episódios, de 1986 a 2026, contados em capítulos e com as fontes.">
   <meta name="theme-color" content="#ffffff">
@@ -30,53 +30,30 @@
       <a href="#videos">Vídeos</a>
       <a href="#metodo">Método</a>
     </nav>
+    <button class="mode-chip" id="modeChip" type="button" hidden><span id="modeLabel"></span><i>trocar</i></button>
     <a class="btn-primary nav-cta" href="#historia" data-start>Começar</a>
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Abrir menu"><i></i><i></i></button>
   </header>
 
   <main id="topo">
-    <!-- CAPA -->
+    <!-- CAPA: direto ao ponto -->
     <section class="hero" aria-labelledby="heroTitle">
       <div class="hero-copy">
-        <p class="label" id="heroLabel">Dossiê aberto</p>
+        <p class="label" id="heroLabel">Dados até 7 out 2026</p>
         <h1 class="display" id="heroTitle"><span class="line"><span>Flávio</span></span><span class="line"><span>Bolsonaro,</span></span><span class="line"><span>episódio por</span></span><span class="line"><span>episódio.</span></span></h1>
-        <p class="lede">
-          Rachadinha, dinheiro vivo, milícia, Abin paralela, Banco Master, a trama golpista. De 1986 a 2026, os casos
-          que envolvem o senador e candidato à Presidência, o pai, os irmãos e os aliados, contados em capítulos e com as fontes.
-        </p>
+        <p class="lede" id="heroLede">Os casos, em ordem e com as fontes.</p>
         <div class="hero-actions">
-          <a class="btn-primary" href="#historia" data-start>Começar a história <span aria-hidden="true">↓</span></a>
-          <button class="link-ghost" type="button" id="heroMilestones">Ver só os marcos →</button>
+          <a class="btn-primary" href="#historia" data-start>Começar <span aria-hidden="true">↓</span></a>
         </div>
-        <dl class="hero-stats" id="heroStats"></dl>
       </div>
       <figure class="hero-visual">
-        <canvas id="constellation" aria-label="Constelação: cada triângulo é um episódio, do centro (1986) para fora (2026)" role="img"></canvas>
+        <canvas id="constellation" aria-label="Constelação: cada triângulo é um episódio" role="img"></canvas>
         <div class="c-tip" id="cTip" hidden></div>
-        <figcaption class="c-caption"><b>Cada triângulo é um episódio.</b> Do centro (1986) para fora (2026). Passe o mouse e clique.</figcaption>
       </figure>
     </section>
 
-    <!-- COMO LER -->
-    <section class="reading" aria-label="Como ler">
-      <p class="label">Como ler</p>
-      <p class="reading-text">
-        Role para avançar na história. Cada episódio tem uma ficha com a <b>situação jurídica atual</b> e
-        <b>o que dizem os citados</b>. Investigação, denúncia e indiciamento não são condenação. Provas anuladas e casos
-        arquivados aparecem indicados.
-      </p>
-    </section>
-
     <!-- HISTÓRIA -->
-    <section class="story" id="historia" aria-labelledby="storyTitle">
-      <div class="section-head">
-        <h2 class="heading-lg" id="storyTitle">A história</h2>
-        <div class="section-aside">
-          <p class="label">01 · Linha do tempo</p>
-          <p class="body" id="storyAside">Uma história em capítulos, de 1986 a hoje. Use a busca e os filtros para ir direto a uma pessoa ou a um tema.</p>
-        </div>
-      </div>
-
+    <section class="story" id="historia" aria-label="Linha do tempo">
       <div class="toolbar" id="toolbar">
         <div class="toolbar-row">
           <label class="search" id="searchBox">
@@ -181,6 +158,13 @@
           <dd>Uma primeira rodada reuniu os episódios. Uma segunda rodada, independente, reabriu cada link, conferiu datas,
             valores e termos jurídicos e removeu o que não se sustentou. Os vídeos foram confirmados um a um no YouTube.
             As imagens vêm de bancos com licença livre (Wikimedia Commons, Agência Brasil, Agência Senado), com crédito.</dd>
+          <dt>Como ler</dt>
+          <dd>Cada ficha traz a <b>situação jurídica atual</b> e <b>o que dizem os citados</b>. Investigação, denúncia e
+            indiciamento não são condenação. Provas anuladas e casos arquivados aparecem indicados.</dd>
+          <dt>Recortes</dt>
+          <dd>Na entrada, o site pergunta se você se considera bolsonarista. Quem responde “sim” vê os casos de Flávio e
+            dos irmãos; quem responde “não” vê também os do pai e dos aliados. Nos dois, os episódios de Flávio vêm em destaque.
+            A resposta fica só neste aparelho e pode ser trocada no topo da página.</dd>
           <dt>Termos</dt>
           <dd><b>Investigação</b>: apuração em curso. <b>Indiciamento</b>: a polícia vê indícios de crime. <b>Denúncia</b>:
             o Ministério Público acusa formalmente. <b>Réu</b>: a Justiça aceita a denúncia. <b>Condenação</b>: sentença,
@@ -207,6 +191,19 @@
   </footer>
 
   <button class="progress-pill" id="progressPill" type="button" aria-label="Voltar à busca e aos filtros"><b id="ppYear">—</b><span id="ppCount"></span><i aria-hidden="true">Filtros ↑</i></button>
+
+  <dialog class="intro" id="intro" aria-labelledby="introQ">
+    <div class="intro-inner">
+      <p class="label">Antes de começar</p>
+      <h2 class="intro-q" id="introQ">Você se considera bolsonarista?</h2>
+      <div class="intro-actions">
+        <button class="intro-btn" type="button" data-mode="bolsonarista">Sim</button>
+        <button class="intro-btn" type="button" data-mode="geral">Não</button>
+      </div>
+      <button class="link-ghost intro-skip" type="button" data-mode="geral">Prefiro não responder</button>
+      <p class="intro-note">A resposta só escolhe o recorte dos casos. Fica neste aparelho e não é enviada a ninguém.</p>
+    </div>
+  </dialog>
 
   <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
     <div class="sheet-inner" id="sheetInner"></div>

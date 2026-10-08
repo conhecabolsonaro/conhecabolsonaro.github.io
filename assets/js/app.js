@@ -73,12 +73,47 @@
     const names = e.people.map(k => (people.get(k) || {}).name || k).join(' ')
     e._q = norm([e.title, e.summary, e.details, e.status, e.defense, names, catLabel(e.category), e.sources.map(s => s.outlet + ' ' + s.title).join(' ')].join(' '))
   })
-  // cenas da história na ordem da cronologia, ancoradas no episódio que revelam
-  const SCENES = [...STORY.chapters.map(c => ({ ch: c, epi: false })), ...(STORY.epilogue ? [{ ch: STORY.epilogue, epi: true }] : [])]
-    .filter(s => evById.has(s.ch.event))
-    .map(s => ({ ...s, sort: evById.get(s.ch.event).sort }))
-    .sort((a, b) => a.sort.localeCompare(b.sort))
-  const sceneByEvent = new Set(SCENES.map(s => s.ch.event))
+  // ------------------------------------------------------------------ recortes (pergunta de entrada)
+  // bolsonarista: Flávio e irmãos, sem episódios que acusam o pai · geral: todos. Nos dois, Flávio é a estrela.
+  const MODES = {
+    bolsonarista: { label: 'Flávio e irmãos', lede: 'Os casos de Flávio e dos irmãos, em ordem e com as fontes.' },
+    geral: { label: 'Todos, foco em Flávio', lede: 'Os casos de Flávio, do pai, dos irmãos e dos aliados, em ordem e com as fontes.' },
+  }
+  const MODE_KEY = 'cb-recorte'
+  const urlMode = new URLSearchParams(location.search).get('recorte')
+  const storedMode = (() => { try { const m = localStorage.getItem(MODE_KEY); return MODES[m] ? m : null } catch (err) { return null } })()
+  let mode = MODES[urlMode] ? urlMode : storedMode
+  const modeChosen = !!mode
+  const keepModeInUrl = !!MODES[urlMode]
+  if (!mode) mode = 'geral'
+  const BROTHERS = ['carlos', 'eduardo', 'renan']
+  // classificação de cada episódio (research/foco.json); sem ela, uma aproximação pelas pessoas citadas
+  const focusOf = e => e.focus || { f: e.people.includes('flavio') ? 'p' : 'a', b: e.people.filter(k => BROTHERS.includes(k)), j: false }
+  const isStar = e => focusOf(e).f === 'p'
+  const inMode = (e, m = mode) => m !== 'bolsonarista' || ((focusOf(e).f === 'p' || focusOf(e).b.length > 0) && !focusOf(e).j)
+  let BASE = D.events.filter(e => inMode(e))
+  let viewCount = new Map()
+  function countPeople() {
+    viewCount = new Map()
+    BASE.forEach(e => e.people.forEach(k => viewCount.set(k, (viewCount.get(k) || 0) + 1)))
+  }
+  const vc = k => viewCount.get(k) || 0
+  countPeople()
+
+  // cenas da história na ordem da cronologia, ancoradas no episódio que revelam; numeradas conforme o recorte
+  let SCENES = [], sceneByEvent = new Set()
+  function computeScenes() {
+    const visible = c => !c.views || c.views.includes(mode)
+    const variant = c => (mode === 'bolsonarista' && c.bolso) ? { ...c, ...c.bolso } : c
+    let k = 0
+    const chapters = STORY.chapters.filter(visible).map(c => ({ ...variant(c), n: c.id === 'prologo' ? 'Prólogo' : `Capítulo ${++k}` }))
+    SCENES = [...chapters.map(c => ({ ch: c, epi: false })), ...(STORY.epilogue && visible(STORY.epilogue) ? [{ ch: variant(STORY.epilogue), epi: true }] : [])]
+      .filter(x => evById.has(x.ch.event))
+      .map(x => ({ ...x, sort: evById.get(x.ch.event).sort }))
+      .sort((a, b) => a.sort.localeCompare(b.sort))
+    sceneByEvent = new Set(SCENES.map(x => x.ch.event))
+  }
+  computeScenes()
 
   function shortName(n) {
     const parts = String(n).split(/\s+/)
@@ -147,6 +182,7 @@
     if (state.cats.size) sp.set('temas', [...state.cats].join(','))
     if (state.milestones) sp.set('marcos', '1')
     if (state.q) sp.set('q', state.q)
+    if (keepModeInUrl) sp.set('recorte', mode)
     const qs = sp.toString()
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash)
   }
@@ -154,7 +190,7 @@
   function applyFilters(opts = {}) {
     state.terms = norm(state.q).split(/\s+/).filter(t => t.length > 1)
     setHighlight(state.terms)
-    filtered = D.events.filter(e =>
+    filtered = BASE.filter(e =>
       (!state.milestones || e.importance === 3) &&
       (!state.cats.size || state.cats.has(e.category) || e.tags.some(t => state.cats.has(t))) &&
       [...state.persons].every(p => e.people.includes(p)) &&
@@ -171,11 +207,9 @@
   function renderHero() {
     const c = D.meta.counts
     const [y0, y1] = D.meta.years
-    $('#heroLabel').textContent = `Dossiê aberto · dados até ${updated.short}`
+    $('#heroLabel').textContent = `${BASE.length} episódios · dados até ${updated.short}`
     $('#footerDate').textContent = updated.long
-    $('#heroStats').innerHTML = [[c.events, 'episódios'], [c.sources, 'fontes'], [c.videos, 'vídeos'], [`${y0}–${String(y1).slice(2)}`, 'período']]
-      .map(([n, l]) => `<div><dt data-count="${typeof n === 'number' ? n : ''}">${typeof n === 'number' ? n.toLocaleString('pt-BR') : esc(n)}</dt><dd>${l}</dd></div>`).join('')
-    $$('#heroStats [data-count]').forEach(el => { if (el.dataset.count) countUp(el, +el.dataset.count, 900) })
+    $('#heroLede').textContent = MODES[mode].lede
   }
   function countUp(el, to, delay = 0) {
     if (reduce) return
@@ -197,13 +231,16 @@
     if (!cv || !cv.getContext) return
     const ctx = cv.getContext('2d')
     const tip = $('#cTip')
-    const N = D.events.length
+    let N = 0, eps = [], amb = [], proj = new Float32Array(0)
     let seed = 20261004
     const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646 }
     const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) }
 
     // espiral: o episódio mais antigo no centro, o mais recente na borda. Só os episódios são triângulos.
-    const eps = D.events.map((e, i) => {
+    function build(list) {
+    seed = 20261004
+    N = list.length
+    eps = list.map((e, i) => {
       const t = N > 1 ? i / (N - 1) : 0
       const arm = i % 3
       const theta = t * Math.PI * 4.4 + arm * (2 * Math.PI / 3) + gauss() * 0.16
@@ -211,7 +248,7 @@
       return { x: r * Math.cos(theta), y: gauss() * 0.06 * (1.3 - t * 0.5), z: r * Math.sin(theta), s: 3.2 + e.importance * 2, rot: rnd() * 6.283, spin: rnd() - 0.5, c: catColor(e.category), e }
     })
     // poeira ambiente: pontos pequenos, não triângulos
-    const amb = []
+    amb = []
     const AMB = isMobile() ? 220 : 700
     for (let k = 0; k < AMB; k++) {
       const b = eps[Math.floor(rnd() * N)]
@@ -219,11 +256,13 @@
       const sp = near ? 0.04 + rnd() * 0.05 : 0.3
       amb.push({ x: b.x + gauss() * sp, y: b.y + gauss() * sp * 0.7, z: b.z + gauss() * sp, s: 0.7 + rnd() * 1.1, c: b.c, a: near ? 0.42 : 0.2 })
     }
+    proj = new Float32Array(N * 3)
+    }
+    build(BASE)
 
     let W = 0, H = 0, running = false, hover = -1, raf = 0, ptr = null
     let tiltT = 0, tilt = 0
     const t0 = performance.now()
-    const proj = new Float32Array(N * 3)
 
     function resize() {
       const r = cv.getBoundingClientRect()
@@ -322,7 +361,9 @@
     new ResizeObserver(resize).observe(cv)
     new IntersectionObserver(en => { en[0].isIntersecting ? start() : stop() }).observe(cv)
     resize()
+    return { rebuild(list) { hover = -1; showTip(-1); build(list); draw(performance.now()) } }
   }
+  let constellation = null
 
   // ------------------------------------------------------------------ a história (linha do tempo)
   function erasFor(y) { return (D.eras || []).filter(r => y >= r.from && y <= r.to).map(r => r.label) }
@@ -346,7 +387,9 @@
     return ''
   }
   function goHTML(ch) {
-    const ids = [ch.event, ...(ch.also || [])].filter(id => id && evById.has(id))
+    // no recorte bolsonarista a cena não abre fichas que ficaram fora dele
+    const inBase = new Set(BASE.map(e => e.id))
+    const ids = [ch.event, ...(ch.also || [])].filter(id => id && evById.has(id) && (mode !== 'bolsonarista' || inBase.has(id)))
     if (!ids.length) return ''
     const [main, ...rest] = ids
     return `<div class="scene-go"><button class="link-ghost" type="button" data-open="${esc(main)}">Abrir a ficha →</button>${rest.map(id => `<button class="link-ghost sm" type="button" data-open="${esc(id)}">Ver também: ${esc(fmtDate(evById.get(id)))}</button>`).join('')}</div>`
@@ -395,7 +438,14 @@
       </div>
     </section>`
   }
+  function miniHTML(e) {
+    return `<article class="ep ep-mini" id="ep-${esc(e.id)}" data-open="${esc(e.id)}" style="--c:${catColor(e.category)};--ci:${catInk(e.category)}">
+      <span class="ep-dot" aria-hidden="true"></span>
+      <div class="ep-body"><p class="mini"><time datetime="${esc(e.date)}">${fmtDate(e)}</time><a class="ep-link" href="#ficha/${esc(e.id)}">${hl(e.title)}</a></p></div>
+    </article>`
+  }
   function epHTML(e) {
+    if (!isStar(e)) return miniHTML(e)
     const [kl, kc] = kind(e.kind)
     const vid = e.videos[0], img = e.images[0]
     const showMedia = e.importance === 3 && (vid || img)
@@ -523,7 +573,7 @@
     onScroll()
   }
   function cacheOffsets() {
-    yrs.forEach(y => { y.lt = y.prog.offsetTop; y.items.forEach(it => { it._off = it.offsetTop + (isMobile() ? 30 : 34) }) })
+    yrs.forEach(y => { y.lt = y.prog.offsetTop; y.items.forEach(it => { it._off = it.offsetTop + (it.classList.contains('ep-mini') ? 18 : isMobile() ? 30 : 34) }) })
     // cena mais alta que a tela não é presa: anima quando aparece, como no celular
     scenes.forEach(s => {
       const inner = $('.scene-inner', s.el)
@@ -676,18 +726,18 @@
   function renderYears() {
     const counts = new Map()
     filtered.forEach(e => counts.set(e.year, (counts.get(e.year) || 0) + 1))
-    const all = [...new Set(D.events.map(e => e.year))].sort((a, b) => a - b)
+    const all = [...new Set(BASE.map(e => e.year))].sort((a, b) => a - b)
     $('#years').innerHTML = all.map(y => `<button type="button" data-year="${y}" ${counts.get(y) ? '' : 'disabled'} aria-label="${y}: ${counts.get(y) || 0} episódios">${y}</button>`).join('')
   }
   function renderFilterControls() {
-    const ppl = D.people.filter(p => p.count > 0 && (p.profile || p.count >= 4)).sort((a, b) => {
+    const ppl = D.people.filter(p => vc(p.key) > 0 && (p.profile || vc(p.key) >= 4)).sort((a, b) => {
       const ia = KEY_PEOPLE.indexOf(a.key), ib = KEY_PEOPLE.indexOf(b.key)
       if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
-      return b.count - a.count
+      return vc(b.key) - vc(a.key)
     })
-    $('#personChips').innerHTML = ppl.map(p => `<button class="chip${p.portrait ? '' : ' no-av'}" type="button" data-person="${esc(p.key)}" aria-pressed="false">${p.portrait ? avatar(p.key, 'chip-av') : ''}${esc(displayName(p.key))} <span class="n">${p.count}</span></button>`).join('')
+    $('#personChips').innerHTML = ppl.map(p => `<button class="chip${p.portrait ? '' : ' no-av'}" type="button" data-person="${esc(p.key)}" aria-pressed="false">${p.portrait ? avatar(p.key, 'chip-av') : ''}${esc(displayName(p.key))} <span class="n">${vc(p.key)}</span></button>`).join('')
     const catCount = {}
-    D.events.forEach(e => { catCount[e.category] = (catCount[e.category] || 0) + 1 })
+    BASE.forEach(e => { catCount[e.category] = (catCount[e.category] || 0) + 1 })
     $('#catChips').innerHTML = Object.keys(D.categories).filter(c => catCount[c]).map(c => `<button class="chip no-av" type="button" data-cat="${c}" aria-pressed="false" style="--c:${catColor(c)}"><span class="sw"></span>${esc(catLabel(c))} <span class="n">${catCount[c]}</span></button>`).join('')
   }
   function syncControls() {
@@ -699,7 +749,7 @@
     // só reescreve a caixa quando a mudança veio de fora dela (não apaga o espaço enquanto se digita)
     const qi = $('#q')
     if (qi.value.trim() !== state.q) qi.value = state.q
-    $('#resultCount').innerHTML = `<b>${filtered.length}</b> de ${D.events.length} episódios`
+    $('#resultCount').innerHTML = `<b>${filtered.length}</b> de ${BASE.length} episódios`
   }
   function renderActiveFilters() {
     const parts = []
@@ -771,7 +821,6 @@
       if (e.key === 'Escape' && !$('#sheet').open) { togglePop(null); document.body.classList.remove('tb-summoned') }
       if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName) && !$('#sheet').open) { e.preventDefault(); goTo($('#historia')); setTimeout(() => $('#q').focus({ preventScroll: true }), 300) }
     })
-    $('#heroMilestones').addEventListener('click', () => { state.milestones = true; applyFilters(); goTo($('#historia')) })
     $$('[data-start]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); startStory() }))
     $('#progressPill').addEventListener('click', () => {
       if (isMobile()) {
@@ -814,7 +863,7 @@
     el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(el.dataset.yt)}?autoplay=1&rel=0" title="Vídeo do YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
   }
   function related(e) {
-    return D.events.filter(x => x.id !== e.id).map(x => {
+    return BASE.filter(x => x.id !== e.id).map(x => {
       const shared = x.people.filter(p => e.people.includes(p) && p !== 'flavio' && p !== 'jair').length
       return [shared * 2 + (x.category === e.category ? 2 : 0) + (x.topic === e.topic ? 1 : 0) - Math.abs(x.year - e.year) * 0.15 + x.importance * 0.3, x]
     }).sort((a, b) => b[0] - a[0]).slice(0, 5).map(([, x]) => x)
@@ -895,7 +944,8 @@
   // ------------------------------------------------------------------ números
   function renderNumbers() {
     // os valores que a história ainda não revelou vêm primeiro
-    const hs = (D.highlights || []).filter(h => h && (h.value_brl || h.value_text))
+    const inBase = new Set(BASE.map(e => e.id))
+    const hs = (D.highlights || []).filter(h => h && (h.value_brl || h.value_text) && inBase.has(h.event))
       .sort((a, b) => sceneByEvent.has(a.event) - sceneByEvent.has(b.event))
     if (!hs.length) { $('#numeros').hidden = true; return }
     $('#numbersGrid').innerHTML = hs.map(h => {
@@ -912,7 +962,9 @@
   // ------------------------------------------------------------------ pessoas
   let peopleGroup = 'todos'
   function renderPeople() {
-    const ppl = D.people.filter(p => p.count > 0 && p.profile)
+    // no recorte bolsonarista o pai não ganha cartão
+    const ppl = D.people.filter(p => vc(p.key) > 0 && p.profile && !(mode === 'bolsonarista' && p.key === 'jair')).map(p => ({ ...p, count: vc(p.key) }))
+    if (!ppl.some(p => p.group === peopleGroup) && peopleGroup !== 'todos') peopleGroup = 'todos'
     const groups = ['todos', ...Object.keys(GROUPS).filter(g => ppl.some(p => p.group === g))]
     $('#peopleTabs').innerHTML = groups.map(g => `<button class="chip no-av" type="button" data-group="${g}" aria-pressed="${g === peopleGroup}">${g === 'todos' ? 'Todos' : GROUPS[g][0]} <span class="n">${g === 'todos' ? ppl.length : ppl.filter(p => p.group === g).length}</span></button>`).join('')
     const list = ppl.filter(p => peopleGroup === 'todos' || p.group === peopleGroup).sort((a, b) => {
@@ -947,10 +999,11 @@
   }
 
   // ------------------------------------------------------------------ conexões
-  let graphReady = false
+  let graphReady = false, graphPanelBound = false, graphFocus = null
   function initGraph() {
     if (graphReady) return
     graphReady = true
+    $('#graph').innerHTML = ''
     if (!window.d3) {
       // os dois scripts são "defer": se o d3 não chegou até aqui, não vai chegar
       $('#graph').hidden = true
@@ -961,10 +1014,14 @@
     const el = $('#graph')
     const W = el.clientWidth, H = el.clientHeight
     // juízes, procuradores e o adversário eleitoral aparecem por ofício, não por ligação: ficam fora do mapa
-    const nodes = D.people.filter(p => p.count >= 3 && (p.profile || p.count >= 4) && p.group !== 'justica' && p.key !== 'lula').slice(0, 40).map(p => ({ ...p, id: p.key }))
+    const nodes = D.people.filter(p => vc(p.key) >= 3 && (p.profile || vc(p.key) >= 4) && p.group !== 'justica' && p.key !== 'lula')
+      .map(p => ({ ...p, id: p.key, count: vc(p.key) })).sort((a, b) => b.count - a.count).slice(0, 40)
     const labeled = new Set([...nodes].sort((a, b) => b.count - a.count).slice(0, 18).map(n => n.id))
     const ids = new Set(nodes.map(n => n.id))
-    const links = D.edges.filter(l => ids.has(l.a) && ids.has(l.b)).map(l => ({ source: l.a, target: l.b, w: l.w }))
+    // ligações recalculadas a partir dos episódios do recorte
+    const pairs = new Map()
+    BASE.forEach(e => { const ps = e.people.filter(k => ids.has(k)).sort(); for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) { const key = ps[i] + '|' + ps[j]; pairs.set(key, (pairs.get(key) || 0) + 1) } })
+    const links = [...pairs].map(([key, w]) => { const [a, b] = key.split('|'); return { source: a, target: b, w } })
     const r = n => (n.id === 'flavio' || n.id === 'jair' ? 30 : 9 + Math.sqrt(n.count) * 3.2)
     const svg = d3.select(el).append('svg').attr('viewBox', [0, 0, W, H])
     const defs = svg.append('defs')
@@ -1006,9 +1063,9 @@
     node.on('mouseenter', (ev, n) => focus(n.id)).on('mouseleave', () => focus(selected))
       .on('click', (ev, n) => { selected = n.id; focus(n.id); showPanel(n.id) })
     function showPanel(id) {
-      const p = people.get(id)
+      const p = { ...people.get(id), count: vc(id) }
       const conns = links.filter(l => l.source.id === id || l.target.id === id).map(l => ({ k: l.source.id === id ? l.target.id : l.source.id, w: l.w })).sort((a, b) => b.w - a.w).slice(0, 10)
-      const evs = D.events.filter(e => e.people.includes(id)).sort((a, b) => b.importance - a.importance || a.sort.localeCompare(b.sort)).slice(0, 10).sort((a, b) => a.sort.localeCompare(b.sort))
+      const evs = BASE.filter(e => e.people.includes(id)).sort((a, b) => b.importance - a.importance || a.sort.localeCompare(b.sort)).slice(0, 10).sort((a, b) => a.sort.localeCompare(b.sort))
       $('#graphPanel').innerHTML = `
         ${p.short_role ? `<p class="p-role">${esc(p.short_role)}</p>` : ''}
         <h3>${esc(displayName(id))}</h3>
@@ -1018,10 +1075,14 @@
         <p class="pop-title">Principais episódios</p>
         <ul>${evs.map(e => `<li><button type="button" data-open="${esc(e.id)}">${esc(e.title)}<small>${fmtDate(e)} · ${esc(catLabel(e.category))}</small></button></li>`).join('')}</ul>`
     }
-    $('#graphPanel').addEventListener('click', e => {
-      const f = e.target.closest('[data-filter-person]'); if (f) filterByPerson(f.dataset.filterPerson)
-      const g = e.target.closest('[data-graph-node]'); if (g) { selected = g.dataset.graphNode; focus(selected); showPanel(selected) }
-    })
+    graphFocus = id => { selected = id; focus(id); showPanel(id) }
+    if (!graphPanelBound) {
+      graphPanelBound = true
+      $('#graphPanel').addEventListener('click', e => {
+        const f = e.target.closest('[data-filter-person]'); if (f) filterByPerson(f.dataset.filterPerson)
+        const g = e.target.closest('[data-graph-node]'); if (g && graphFocus) graphFocus(g.dataset.graphNode)
+      })
+    }
     const legend = Object.entries(GROUPS).filter(([g]) => nodes.some(n => n.group === g))
     el.insertAdjacentHTML('beforeend', `<div class="graph-legend">${legend.map(([, [l, c]]) => `<span><i style="background:${c}"></i>${l}</span>`).join('')}</div>`)
     if (people.has('flavio')) { selected = 'flavio'; showPanel('flavio') }
@@ -1030,8 +1091,11 @@
   // ------------------------------------------------------------------ vídeos
   let videoCat = 'todos', videoLimit = 9
   function renderVideos() {
-    const vids = D.videos || []
-    if (!vids.length) { $('#videos').hidden = true; return }
+    // no recorte bolsonarista, só vídeos ligados a episódios do recorte
+    const inBase = new Set(BASE.map(e => e.id))
+    const vids = (D.videos || []).filter(v => mode !== 'bolsonarista' || (v.event && inBase.has(v.event)))
+    $('#videos').hidden = !vids.length
+    if (!vids.length) return
     const cats = [...new Set(vids.map(v => v.category).filter(Boolean))]
     $('#videoChips').innerHTML = ['todos', ...cats].map(c => `<button class="chip no-av" type="button" data-vcat="${c}" aria-pressed="${c === videoCat}" ${c !== 'todos' ? `style="--c:${catColor(c)}"` : ''}>${c !== 'todos' ? '<span class="sw"></span>' : ''}${c === 'todos' ? 'Todos' : esc(catLabel(c))} <span class="n">${c === 'todos' ? vids.length : vids.filter(v => v.category === c).length}</span></button>`).join('')
     const list = vids.filter(v => videoCat === 'todos' || v.category === videoCat)
@@ -1054,8 +1118,6 @@
     $('#methodStats').innerHTML = [[c.events, 'episódios'], [c.sources, 'links de fontes'], [c.outlets, 'veículos e órgãos'], [c.videos, 'vídeos verificados']]
       .map(([n, l]) => `<div><dt>${n.toLocaleString('pt-BR')}</dt><dd>${l}</dd></div>`).join('')
     $('#outlets').innerHTML = (D.meta.topOutlets || []).map(o => `<span>${esc(o.name)}<i>${o.n}</i></span>`).join('')
-    const chapters = STORY.chapters.length
-    const aside = $('#storyAside'); if (aside) aside.textContent = `Um prólogo e ${chapters - 1} capítulos, de ${D.meta.years[0]} a hoje. Use a busca e os filtros para ir direto a uma pessoa ou a um tema.`
   }
 
   // ------------------------------------------------------------------ navegação
@@ -1077,10 +1139,41 @@
     gObs.observe($('#conexoes'))
   }
 
+  // ------------------------------------------------------------------ recorte: pergunta e troca
+  function updateModeChip() {
+    $('#modeLabel').textContent = MODES[mode].label
+    $('#modeChip').hidden = false
+  }
+  function setMode(m) {
+    if (!MODES[m]) return
+    mode = m
+    try { localStorage.setItem(MODE_KEY, m) } catch (err) { /* sem armazenamento: vale só nesta visita */ }
+    BASE = D.events.filter(e => inMode(e))
+    countPeople(); computeScenes()
+    ;[...state.persons].forEach(k => { if (!vc(k)) state.persons.delete(k) })
+    renderHero()
+    if (constellation) constellation.rebuild(BASE)
+    renderFilterControls(); renderNumbers(); renderPeople()
+    videoLimit = 9; renderVideos()
+    if (graphReady) { graphReady = false; initGraph() }
+    applyFilters()
+    updateModeChip()
+  }
+  const intro = $('#intro')
+  function askMode() { if (!intro.open) intro.showModal() }
+  intro.addEventListener('click', e => {
+    const b = e.target.closest('[data-mode]'); if (!b) return
+    intro.close(); setMode(b.dataset.mode); window.scrollTo({ top: 0, behavior: 'auto' })
+  })
+  // Esc sem responder vale como "prefiro não responder"
+  intro.addEventListener('cancel', () => { if (!localStorageMode()) setMode('geral') })
+  const localStorageMode = () => { try { return localStorage.getItem(MODE_KEY) } catch (err) { return 'geral' } }
+  $('#modeChip').addEventListener('click', askMode)
+
   // ------------------------------------------------------------------ início
   readUrl()
   renderHero()
-  initConstellation()
+  constellation = initConstellation()
   renderFilterControls()
   bindFilters()
   measureToolbar()
@@ -1090,6 +1183,7 @@
   renderMethod()
   bindNav()
   applyFilters()
+  if (modeChosen) updateModeChip(); else askMode()
 
   function openFromHash() {
     if (!location.hash.startsWith('#ficha/')) return false
